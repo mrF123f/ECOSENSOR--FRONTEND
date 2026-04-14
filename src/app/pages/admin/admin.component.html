@@ -1,0 +1,316 @@
+<!-- admin.component.html -->
+<div class="admin-page">
+
+  <!-- HEADER -->
+  <div class="admin-header">
+    <div class="header-left">
+      <div class="admin-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3C12 3 6 9 6 14C6 17.31 8.69 20 12 20C15.31 20 18 17.31 18 14C18 9 12 3Z" fill="white"/>
+          <circle cx="12" cy="14" r="3" fill="#0f172a"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="admin-title">Panel de Administración</h1>
+        <p class="admin-sub">EcoSensor — Vista global del sistema</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        Sistema activo
+      </div>
+      <button class="btn-refresh" (click)="cargarTodo()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7C2 4.24 4.24 2 7 2C8.93 2 10.61 3.04 11.5 4.6M12 7C12 9.76 9.76 12 7 12C5.07 12 3.39 10.96 2.5 9.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M12 2.5V5.5H9M2 11.5V8.5H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="cargando">
+    <div class="spinner"></div>
+    <span>Cargando datos del sistema...</span>
+  </div>
+
+  <div *ngIf="!cargando">
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon icon-blue">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="6" r="3.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M2 16C2 12.69 5.13 10 9 10C12.87 10 16 12.69 16 16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="kpi-data">
+          <div class="kpi-num">{{ kpis.totalUsuarios ?? 0 }}</div>
+          <div class="kpi-label">Usuarios totales</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon icon-purple">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2" y="6" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M6 6V5C6 3.9 6.9 3 8 3H10C11.1 3 12 3.9 12 5V6" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+        </div>
+        <div class="kpi-data">
+          <div class="kpi-num">{{ kpis.totalEmpresas ?? 0 }}</div>
+          <div class="kpi-label">Empresas</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon icon-teal">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2" y="5" width="14" height="9" rx="1" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="6" cy="9.5" r="1" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="kpi-data">
+          <div class="kpi-num">{{ kpis.totalSensores ?? 0 }}</div>
+          <div class="kpi-label">Sensores</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon icon-green">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="3" fill="currentColor" opacity="0.6"/>
+            <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 2"/>
+          </svg>
+        </div>
+        <div class="kpi-data">
+          <div class="kpi-num">{{ kpis.sensoresActivos ?? 0 }}</div>
+          <div class="kpi-label">Sensores activos</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon icon-yellow">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 2L16 14H2L9 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M9 7V10M9 12.5H9.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="kpi-data">
+          <div class="kpi-num">{{ kpis.alertasSinAtender ?? 0 }}</div>
+          <div class="kpi-label">Alertas sin atender</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon icon-emerald">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M6 9L8 11L12 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="kpi-data">
+          <div class="kpi-num">{{ kpis.suscripcionesActivas ?? 0 }}</div>
+          <div class="kpi-label">Suscripciones activas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-bar">
+      <button class="tab-btn" [class.active]="tabActiva === 'usuarios'" (click)="cambiarTab('usuarios')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M1.5 12C1.5 9.51 4.02 7.5 7 7.5C9.98 7.5 12.5 9.51 12.5 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Usuarios <span class="tab-count">{{ usuarios.length }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="tabActiva === 'empresas'" (click)="cambiarTab('empresas')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M5 5V4C5 3.45 5.45 3 6 3H8C8.55 3 9 3.45 9 4V5" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        Empresas <span class="tab-count">{{ empresas.length }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="tabActiva === 'suscripciones'" (click)="cambiarTab('suscripciones')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M4 7L6 9L10 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Suscripciones <span class="tab-count">{{ suscripciones.length }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="tabActiva === 'alertas'" (click)="cambiarTab('alertas')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1.5L12.5 11H1.5L7 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M7 6V8M7 10H7.01" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Alertas <span class="tab-count">{{ alertas.length }}</span>
+      </button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="tab-content">
+
+      <!-- USUARIOS -->
+      <div *ngIf="tabActiva === 'usuarios'">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nombre</th><th>Email</th><th>Tipo</th>
+                <th>Empresa</th><th>Rol</th><th>Estado</th>
+                <th>Registro</th><th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of usuarios" class="table-row" [class.row-inactivo]="!u.activo">
+                <td class="td-main">{{ u.nombre }}</td>
+                <td class="td-sub">{{ u.email }}</td>
+                <td>
+                  <span class="tipo-badge" [class.tipo-empresa]="u.tipoUsuario === 'EMPRESA'">
+                    {{ u.tipoUsuario === 'EMPRESA' ? '🏢' : '🏠' }} {{ u.tipoUsuario }}
+                  </span>
+                </td>
+                <td class="td-sub">{{ u.empresa ?? '—' }}</td>
+                <td>
+                  <span class="rol-badge" [class.rol-admin]="u.rol === 'ADMIN'">{{ u.rol }}</span>
+                </td>
+                <td>
+                  <span class="estado-dot" [style.background]="u.activo ? '#22c55e' : '#f87171'"></span>
+                  {{ u.activo ? 'Activo' : 'Inactivo' }}
+                </td>
+                <td class="td-sub">{{ u.fechaCreacion | date:'dd/MM/yy' }}</td>
+                <td>
+                  <button class="btn-accion"
+                          [class.btn-danger]="u.activo"
+                          [class.btn-success]="!u.activo"
+                          [disabled]="accionando === u.id"
+                          (click)="toggleUsuario(u)">
+                    {{ accionando === u.id ? '...' : (u.activo ? 'Suspender' : 'Activar') }}
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="usuarios.length === 0">
+                <td colspan="8" class="empty-row">Sin usuarios registrados</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EMPRESAS -->
+      <div *ngIf="tabActiva === 'empresas'">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Empresa</th><th>RUC</th><th>Email</th>
+                <th>Plan</th><th>Sensores</th><th>Estado</th><th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let e of empresas" class="table-row" [class.row-inactivo]="!e.activa">
+                <td class="td-main">{{ e.nombre }}</td>
+                <td class="td-mono">{{ e.ruc ?? '—' }}</td>
+                <td class="td-sub">{{ e.email ?? '—' }}</td>
+                <td><span class="plan-chip">{{ e.plan ?? 'Sin plan' }}</span></td>
+                <td class="td-center">{{ e.totalSensores ?? 0 }}</td>
+                <td>
+                  <span class="estado-dot" [style.background]="e.activa ? '#22c55e' : '#f87171'"></span>
+                  {{ e.activa ? 'Activa' : 'Inactiva' }}
+                </td>
+                <td>
+                  <button class="btn-accion"
+                          [class.btn-danger]="e.activa"
+                          [class.btn-success]="!e.activa"
+                          [disabled]="accionando === e.id"
+                          (click)="toggleEmpresa(e)">
+                    {{ accionando === e.id ? '...' : (e.activa ? 'Desactivar' : 'Activar') }}
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="empresas.length === 0">
+                <td colspan="7" class="empty-row">Sin empresas registradas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUSCRIPCIONES -->
+      <div *ngIf="tabActiva === 'suscripciones'">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Empresa</th><th>Plan</th><th>Precio</th>
+                <th>Estado</th><th>Pago</th><th>Inicio</th><th>Vence</th><th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of suscripciones" class="table-row" [class.row-inactivo]="s.estado !== 'ACTIVA'">
+                <td class="td-main">{{ s.empresa ?? '—' }}</td>
+                <td><span class="plan-chip">{{ s.plan ?? '—' }}</span></td>
+                <td class="td-mono">S/. {{ s.precio ?? '—' }}</td>
+                <td>
+                  <span class="estado-badge"
+                        [style.color]="getEstadoColor(s.estado)"
+                        [style.border-color]="getEstadoColor(s.estado)">
+                    {{ s.estado }}
+                  </span>
+                </td>
+                <td>
+                  <span class="estado-badge"
+                        [style.color]="getEstadoColor(s.estadoPago)"
+                        [style.border-color]="getEstadoColor(s.estadoPago)">
+                    {{ s.estadoPago ?? '—' }}
+                  </span>
+                </td>
+                <td class="td-sub">{{ s.fechaInicio | date:'dd/MM/yy' }}</td>
+                <td class="td-sub">{{ s.fechaFin | date:'dd/MM/yy' }}</td>
+                <td>
+                  <button class="btn-accion"
+                          [class.btn-danger]="s.estado === 'ACTIVA'"
+                          [class.btn-success]="s.estado !== 'ACTIVA'"
+                          [disabled]="accionando === s.id"
+                          (click)="toggleSuscripcion(s)">
+                    {{ accionando === s.id ? '...' : (s.estado === 'ACTIVA' ? 'Suspender' : 'Reactivar') }}
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="suscripciones.length === 0">
+                <td colspan="8" class="empty-row">Sin suscripciones</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ALERTAS -->
+      <div *ngIf="tabActiva === 'alertas'">
+        <div class="alertas-list">
+          <div class="alerta-row" *ngFor="let a of alertas">
+            <div class="alerta-nivel-bar" [style.background]="getNivelColor(a.nivel)"></div>
+            <div class="alerta-body">
+              <div class="alerta-top">
+                <span class="alerta-tipo">{{ a.tipoMetrica }}</span>
+                <span class="alerta-empresa">{{ a.empresa }}</span>
+                <span class="alerta-sensor">{{ a.sensor }}</span>
+              </div>
+              <div class="alerta-msg">{{ a.mensaje }}</div>
+            </div>
+            <div class="alerta-meta">
+              <span class="nivel-tag" [style.color]="getNivelColor(a.nivel)" [style.border-color]="getNivelColor(a.nivel)">{{ a.nivel }}</span>
+              <span class="alerta-val">{{ a.valor | number:'1.1-1' }}</span>
+              <span class="alerta-fecha">{{ a.fecha | date:'dd/MM HH:mm' }}</span>
+              <span class="atendida-badge" [class.atendida]="a.atendida">
+                {{ a.atendida ? '✓ Atendida' : 'Pendiente' }}
+              </span>
+            </div>
+          </div>
+          <div class="empty-row" *ngIf="alertas.length === 0">Sin alertas recientes</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

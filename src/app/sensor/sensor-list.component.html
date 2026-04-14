@@ -1,0 +1,191 @@
+<!-- sensor-list.component.html -->
+<div class="sensors-page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3C12 3 6 9 6 14C6 17.31 8.69 20 12 20C15.31 20 18 17.31 18 14C18 9 12 3Z" fill="white"/>
+            <circle cx="12" cy="14" r="3" fill="#0f172a"/>
+          </svg>
+        </div>
+        <span class="brand-name">EcoSensor</span>
+      </div>
+      <div class="breadcrumb">
+        <span>Inicio</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <span class="breadcrumb-active">Mis sensores</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-dashboard" (click)="irDashboard()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+          <rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        Ver dashboard
+      </button>
+      <button class="btn-add" (click)="irCrearSensor()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Nuevo sensor
+      </button>
+    </div>
+  </div>
+
+  <!-- HERO STATS (si hay sensores) -->
+  <div class="hero-stats" *ngIf="!cargando && sensores.length > 0">
+    <div class="stat-card">
+      <div class="stat-icon total-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M9 5V9L11.5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-num">{{ sensores.length }}</div>
+        <div class="stat-label">Total sensores</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon active-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M6 9L8 11L12 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-num">{{ sensoresActivos }}</div>
+        <div class="stat-label">Activos</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon aire-icon">
+        <span style="font-size:16px">🌫</span>
+      </div>
+      <div>
+        <div class="stat-num">{{ contarTipo('AIRE') }}</div>
+        <div class="stat-label">Aire</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon agua-icon">
+        <span style="font-size:16px">💧</span>
+      </div>
+      <div>
+        <div class="stat-num">{{ contarTipo('AGUA') }}</div>
+        <div class="stat-label">Agua</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon energia-icon">
+        <span style="font-size:16px">⚡</span>
+      </div>
+      <div>
+        <div class="stat-num">{{ contarTipo('ENERGIA') }}</div>
+        <div class="stat-label">Energía</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="cargando">
+    <div class="spinner"></div>
+    <span>Cargando sensores...</span>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-state" *ngIf="error">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="8" stroke="#f87171" stroke-width="1.5"/>
+      <path d="M10 6V10M10 14H10.01" stroke="#f87171" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    {{ error }}
+  </div>
+
+  <!-- GRID DE SENSORES -->
+  <div class="sensors-grid" *ngIf="!cargando && sensores.length > 0">
+    <div class="sensor-card"
+         *ngFor="let s of sensores; let i = index"
+         [attr.data-tipo]="s.tipo"
+         [style.animation-delay]="(i * 0.08) + 's'">
+
+      <!-- Header de la card -->
+      <div class="card-header">
+        <div class="card-tipo-badge" [ngClass]="getTipoClass(s.tipo)">
+          <span class="tipo-icon">{{ getTipoIcon(s.tipo) }}</span>
+          {{ s.tipo }}
+        </div>
+        <div class="card-status" [class.status-active]="s.activo">
+          <span class="status-dot"></span>
+          {{ s.activo ? 'Activo' : 'Inactivo' }}
+        </div>
+      </div>
+
+      <!-- Info principal -->
+      <div class="card-body">
+        <h3 class="card-modelo">{{ s.modelo }}</h3>
+        <div class="card-device">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <rect x="1" y="3" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M4 3V2C4 1.45 4.45 1 5 1H7C7.55 1 8 1.45 8 2V3" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          {{ s.deviceId || 'Sin ID' }}
+        </div>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="card-location" *ngIf="s.ubicacion">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M6 1C4.07 1 2.5 2.57 2.5 4.5C2.5 7 6 11 6 11C6 11 9.5 7 9.5 4.5C9.5 2.57 7.93 1 6 1Z" stroke="currentColor" stroke-width="1.2"/>
+          <circle cx="6" cy="4.5" r="1.2" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        {{ s.ubicacion }}
+      </div>
+
+      <div class="card-coords" *ngIf="s.latitud && s.longitud">
+        {{ s.latitud | number:'1.4-4' }}, {{ s.longitud | number:'1.4-4' }}
+      </div>
+
+      <!-- Toggle -->
+      <div class="card-footer">
+        <button class="btn-toggle"
+                [class.toggle-active]="s.activo"
+                (click)="toggleSensor(s)">
+          <span class="toggle-track">
+            <span class="toggle-thumb" [class.thumb-on]="s.activo"></span>
+          </span>
+          {{ s.activo ? 'Desactivar' : 'Activar' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" *ngIf="!cargando && sensores.length === 0">
+    <div class="empty-icon">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="20" stroke="#1e293b" stroke-width="2"/>
+        <path d="M24 12C24 12 16 19 16 25C16 29.42 19.58 33 24 33C28.42 33 32 29.42 32 25C32 19 24 12Z" stroke="#334155" stroke-width="1.5"/>
+        <circle cx="24" cy="25" r="4" stroke="#334155" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <h3>No tienes sensores aún</h3>
+    <p>Agrega tu primer sensor para comenzar el monitoreo en tiempo real</p>
+    <button class="btn-add-empty" (click)="irCrearSensor()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      Agregar primer sensor
+    </button>
+  </div>
+
+</div>

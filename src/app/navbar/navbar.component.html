@@ -1,0 +1,107 @@
+<!-- navbar.component.html -->
+<aside class="nav-sidebar" [class.collapsed]="collapsed">
+
+  <!-- LOGO -->
+  <div class="nav-logo" (click)="toggleCollapse()">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3C12 3 6 9 6 14C6 17.31 8.69 20 12 20C15.31 20 18 17.31 18 14C18 9 12 3Z" fill="white"/>
+        <circle cx="12" cy="14" r="3" fill="#0f172a"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text" *ngIf="!collapsed">EcoSensor</span>
+    <div class="collapse-btn" *ngIf="!collapsed">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- LINKS -->
+  <nav class="nav-links">
+    <div class="nav-section-label" *ngIf="!collapsed">Navegación</div>
+
+    <div class="nav-link-item"
+         *ngFor="let link of menuLinks"
+         [class.active]="esActivo(link.path)"
+         [class.locked]="esPlanBloqueado(link)"
+         (click)="navegar(link)"
+         [attr.title]="collapsed ? link.label : null">
+
+      <!-- icono -->
+      <div class="link-icon">
+        <!-- Dashboard -->
+        <svg *ngIf="link.icon === 'grid'" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="1" y="1" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <rect x="10" y="1" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <rect x="1" y="10" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <rect x="10" y="10" width="7" height="7" rx="2" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+        <!-- Sensor -->
+        <svg *ngIf="link.icon === 'sensor'" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="2" y="5" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+          <circle cx="6" cy="9.5" r="1.2" fill="currentColor"/>
+          <path d="M9 7.5V11.5M12 8.5V10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M5 5V4C5 3.45 5.45 3 6 3H12C12.55 3 13 3.45 13 4V5" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+        <!-- IA -->
+        <svg *ngIf="link.icon === 'ia'" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M6 9C6 7.34 7.34 6 9 6C10.66 6 12 7.34 12 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          <circle cx="9" cy="12" r="1" fill="currentColor"/>
+          <path d="M9 3V1M9 17V15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <!-- Plan -->
+        <svg *ngIf="link.icon === 'plan'" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M5 8L7.5 10.5L13 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <!-- Admin -->
+        <svg *ngIf="link.icon === 'admin'" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M9 2L16 5.5V9C16 12.5 12.8 15.7 9 16C5.2 15.7 2 12.5 2 9V5.5L9 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M6 9L8 11L12 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <span class="nav-label" *ngIf="!collapsed">{{ link.label }}</span>
+
+      <!-- badge PRO si está bloqueado -->
+      <span class="pro-badge" *ngIf="!collapsed && esPlanBloqueado(link)">PRO</span>
+
+      <!-- indicador activo -->
+      <div class="active-indicator" *ngIf="esActivo(link.path)"></div>
+    </div>
+  </nav>
+
+  <!-- ESPACIADOR -->
+  <div class="nav-spacer"></div>
+
+  <!-- SECCIÓN INFERIOR -->
+  <div class="nav-bottom">
+
+    <!-- Plan badge -->
+    <div class="plan-badge" *ngIf="!collapsed">
+      <div class="plan-dot" [class.pro-dot]="planActual !== 'Básico'"></div>
+      <span>Plan {{ planActual }}</span>
+      <button class="upgrade-btn" *ngIf="planActual === 'Básico'" (click)="navegar({path:'/suscripcion'})">
+        Mejorar
+      </button>
+    </div>
+
+    <!-- Usuario -->
+    <div class="nav-user">
+      <div class="user-avatar">{{ iniciales }}</div>
+      <div class="user-info" *ngIf="!collapsed">
+        <span class="user-name">{{ usuario?.nombre || 'Usuario' }}</span>
+        <span class="user-email">{{ usuario?.email || '' }}</span>
+      </div>
+      <button class="logout-btn" (click)="logout()" [title]="collapsed ? 'Cerrar sesión' : ''">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 2H3C2.45 2 2 2.45 2 3V13C2 13.55 2.45 14 3 14H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M11 5L14 8L11 11M14 8H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+</aside>

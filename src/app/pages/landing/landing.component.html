@@ -1,0 +1,284 @@
+<!-- landing.component.html -->
+<div class="landing">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3C12 3 6 9 6 14C6 17.31 8.69 20 12 20C15.31 20 18 17.31 18 14C18 9 12 3Z" fill="white"/>
+          <circle cx="12" cy="14" r="3" fill="#0f172a"/>
+        </svg>
+      </div>
+      <span class="nav-name">EcoSensor</span>
+    </div>
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Funciones</a>
+      <a href="#pricing" class="nav-link">Precios</a>
+      <button *ngIf="!(auth.isAuthenticated$ | async)" class="nav-btn" (click)="login()">
+        Iniciar sesión
+      </button>
+      <button *ngIf="auth.isAuthenticated$ | async" class="nav-btn nav-btn-outline" (click)="logout()">
+        Cerrar sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="grid-lines"></div>
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Monitoreo IoT en tiempo real
+      </div>
+
+      <h1 class="hero-title">
+        El ambiente que<br>
+        <span class="gradient-text">no puedes ver,</span><br>
+        ahora lo controlas
+      </h1>
+
+      <p class="hero-subtitle">
+        Aire, agua y energía monitoreados 24/7 con sensores IoT y predicciones de inteligencia artificial. Para hogares y empresas que no dejan nada al azar.
+      </p>
+
+      <div class="hero-actions" *ngIf="!(auth.isAuthenticated$ | async)">
+        <button class="btn-primary" (click)="login()">
+          Empezar gratis
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 9H14M10 5L14 9L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <a href="#features" class="btn-ghost">Ver cómo funciona</a>
+      </div>
+
+      <div class="hero-actions" *ngIf="auth.isAuthenticated$ | async">
+        <button class="btn-primary" (click)="router.navigate(['/home'])">
+          Ir al dashboard
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 9H14M10 5L14 9L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">99.9%</span>
+          <span class="stat-label">Uptime</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">&lt;200ms</span>
+          <span class="stat-label">Latencia</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">3</span>
+          <span class="stat-label">Métricas clave</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard preview flotante -->
+    <div class="hero-preview">
+      <div class="preview-card">
+        <div class="preview-header">
+          <div class="preview-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="preview-title">Dashboard — en vivo</span>
+          <div class="preview-live">
+            <span class="live-dot"></span> Live
+          </div>
+        </div>
+        <div class="preview-metrics">
+          <div class="metric-row good">
+            <div class="metric-icon">🌫</div>
+            <div class="metric-info">
+              <span class="metric-name">Calidad del aire</span>
+              <span class="metric-val">PM2.5: 42 μg/m³</span>
+            </div>
+            <span class="metric-badge good-badge">Buena</span>
+          </div>
+          <div class="metric-row warn">
+            <div class="metric-icon">💧</div>
+            <div class="metric-info">
+              <span class="metric-name">pH del agua</span>
+              <span class="metric-val">7.2 — Potable</span>
+            </div>
+            <span class="metric-badge good-badge">OK</span>
+          </div>
+          <div class="metric-row">
+            <div class="metric-icon">⚡</div>
+            <div class="metric-info">
+              <span class="metric-name">Consumo eléctrico</span>
+              <span class="metric-val">3.2 kWh hoy</span>
+            </div>
+            <span class="metric-badge neutral-badge">Normal</span>
+          </div>
+        </div>
+        <div class="preview-chart">
+          <div class="chart-bars">
+            <div class="bar" style="height:40%"></div>
+            <div class="bar" style="height:65%"></div>
+            <div class="bar" style="height:45%"></div>
+            <div class="bar" style="height:80%"></div>
+            <div class="bar" style="height:55%"></div>
+            <div class="bar active" style="height:70%"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Alerta flotante -->
+      <div class="alert-float">
+        <span class="alert-icon">🚨</span>
+        <div>
+          <div class="alert-title">Alerta detectada</div>
+          <div class="alert-sub">Temperatura alta — DEV001</div>
+        </div>
+        <span class="alert-time">ahora</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <span class="section-tag">Funcionalidades</span>
+      <h2 class="section-title">Todo lo que necesitas<br>en un solo lugar</h2>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card large">
+        <div class="feature-visual air-visual">
+          <div class="visual-ring"></div>
+          <div class="visual-ring r2"></div>
+          <span class="visual-icon">🌫</span>
+        </div>
+        <h3>Calidad del aire</h3>
+        <p>Monitorea PM2.5, CO2, temperatura y humedad en tiempo real con alertas automáticas cuando los niveles son peligrosos.</p>
+        <div class="feature-tags">
+          <span>PM2.5</span><span>CO2</span><span>TVOC</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-visual water-visual">
+          <span class="visual-icon">💧</span>
+        </div>
+        <h3>Agua segura</h3>
+        <p>Control de pH, turbidez y sólidos disueltos. Sabe al instante si el agua es potable.</p>
+        <div class="feature-tags">
+          <span>pH</span><span>Turbidez</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-visual energy-visual">
+          <span class="visual-icon">⚡</span>
+        </div>
+        <h3>Energía eficiente</h3>
+        <p>Detecta sobrecargas y patrones de consumo. Ahorra hasta un 30% con recomendaciones de IA.</p>
+        <div class="feature-tags">
+          <span>kWh</span><span>Forecast</span>
+        </div>
+      </div>
+
+      <div class="feature-card ai-card">
+        <div class="ai-badge">PRO</div>
+        <div class="feature-visual ai-visual">
+          <span class="visual-icon">🤖</span>
+        </div>
+        <h3>Predicciones con IA</h3>
+        <p>Anticipa problemas antes de que ocurran. Modelos entrenados con tus datos históricos.</p>
+        <div class="feature-tags">
+          <span>Forecast 7d</span><span>Anomalías</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="section-header">
+      <span class="section-tag">Planes</span>
+      <h2 class="section-title">Empieza cuando quieras,<br>escala cuando crezcas</h2>
+    </div>
+    <div class="plans-grid">
+      <div class="plan-card">
+        <div class="plan-name">Básico</div>
+        <div class="plan-price-container">
+        <div class="plan-price">S/. 45<span class="period">/mes</span></div>
+    <div class="usd-ref">aprox. $12 USD</div>
+      </div>
+        <div class="plan-desc">Para hogares y uso personal</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> Hasta 3 sensores</li>
+          <li><span class="check">✓</span> Dashboard en tiempo real</li>
+          <li><span class="check">✓</span> Alertas por email</li>
+          <li><span class="check">✓</span> Historial 30 días</li>
+          <li class="disabled"><span>✗</span> Predicciones IA</li>
+        </ul>
+        <button class="plan-btn" (click)="login()">Empezar</button>
+      </div>
+
+      <div class="plan-card featured">
+        <div class="plan-popular">Más popular</div>
+        <div class="plan-name">Pro</div>
+        
+       <div class="plan-price-container">
+    <div class="plan-price">S/. 169<span class="period">/mes</span></div>
+    <div class="usd-ref">aprox. $45 USD</div>
+  </div>
+        <div class="plan-desc">Para pequeñas empresas</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> Hasta 20 sensores</li>
+          <li><span class="check">✓</span> Todo lo del Básico</li>
+          <li><span class="check">✓</span> Reportes PDF</li>
+          <li><span class="check">✓</span> Historial 1 año</li>
+          <li><span class="check ai-check">✓</span> Predicciones IA básicas</li>
+        </ul>
+        <button class="plan-btn featured-btn" (click)="login()">Empezar</button>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">Enterprise</div>
+       <div class="plan-price-container">
+    <div class="plan-price">S/. 675<span class="period">/mes</span></div>
+    <div class="usd-ref">aprox. $180 USD</div>
+  </div>
+        <div class="plan-desc">Para empresas medianas/grandes</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> Sensores ilimitados</li>
+          <li><span class="check">✓</span> Multi-sede</li>
+          <li><span class="check">✓</span> Todo lo del Pro</li>
+          <li><span class="check ai-check">✓</span> IA avanzada + anomalías</li>
+          <li><span class="check ai-check">✓</span> Soporte prioritario</li>
+        </ul>
+        <button class="plan-btn" (click)="login()">Contactar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-brand">
+      <div class="nav-logo small">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3C12 3 6 9 6 14C6 17.31 8.69 20 12 20C15.31 20 18 17.31 18 14C18 9 12 3Z" fill="white"/>
+          <circle cx="12" cy="14" r="3" fill="#0f172a"/>
+        </svg>
+      </div>
+      <span>EcoSensor © 2025</span>
+    </div>
+    <p class="footer-sub">Monitoreo inteligente para un mundo más consciente</p>
+  </footer>
+
+</div>

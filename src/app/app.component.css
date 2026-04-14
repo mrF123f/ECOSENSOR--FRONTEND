@@ -1,0 +1,40 @@
+/* app.component.css */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #050a14;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* cuando hay navbar, el contenido toma el resto del espacio */
+.app-content.with-nav {
+  flex: 1;
+}
+
+.footer-qoribex {
+  padding: 20px;
+  text-align: center;
+  color: #666; /* Gris suave */
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(0,0,0,0.05); /* Una línea muy sutil */
+  margin-top: 40px; /* Para que no esté pegado al contenido */
+}
+
+/* Si quieres que el texto resalte un poco más en negrita */
+.footer-qoribex p {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+@media (max-width: 768px) {
+  .app-content.with-nav {
+    margin-left: 0;
+  }
+}

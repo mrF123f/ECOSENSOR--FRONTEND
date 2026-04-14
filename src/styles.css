@@ -1,1 +1,42 @@
-/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';/* You can add global styles to this file, and also import other style files */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+
+  background: linear-gradient(
+    135deg,
+    #020617 ,
+    #0f172a ,
+    #1e293b 
+  );
+
+   background-size: 200% 200%;
+
+  animation: gradientMove 12s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+:root {
+  --bg-dash: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --border-color: #e2e8f0;
+}
+
+body.dark-theme {
+  --bg-dash: #0f172a; /* Azul muy oscuro */
+  --card-bg: #1e293b; /* Gris oscuro */
+  --text-main: #f1f5f9;
+  --border-color: #334155;
+}
+
+/* Aplica estas variables a tus componentes */
+.company-dash { background-color: var(--bg-dash); color: var(--text-main); }
+.kpi-card, .chart-card, .alerts-card { 
+  background-color: var(--card-bg); 
+  border: 1px solid var(--border-color); 
+}

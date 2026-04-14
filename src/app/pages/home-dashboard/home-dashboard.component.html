@@ -1,0 +1,173 @@
+<!-- home-dashboard.component.html -->
+<div class="dashboard">
+
+  <!-- HEADER -->
+  <div class="dash-header">
+    <div class="header-brand">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 5C9 9 7 12 7 15C7 17.76 9.24 20 12 20C14.76 20 17 17.76 17 15C17 12 15 9 12 5Z" fill="white"/>
+         <circle cx="12" cy="14" r="2.5" fill="#0f172a"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="dash-title">EcoSensor</h1>
+        <p class="dash-subtitle">Monitoreo inteligente en tiempo real</p>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <span class="live-badge">
+        <span class="live-dot"></span>
+        En vivo
+      </span>
+
+      <div class="zone-selector-wrap">
+        <svg class="zone-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1C4.79 1 3 2.79 3 5C3 8.5 7 13 7 13C7 13 11 8.5 11 5C11 2.79 9.21 1 7 1Z" stroke="currentColor" stroke-width="1.2"/>
+          <circle cx="7" cy="5" r="1.5" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        <select class="zone-select" (change)="cambiarZona($event)">
+          <option *ngIf="cargando" disabled selected>Cargando zonas...</option>
+          <option *ngIf="!cargando && zonas.length === 0" disabled selected>Sin zonas</option>
+          <option *ngFor="let zona of zonas" [value]="zona" [selected]="zona === zonaSeleccionada">
+            {{ zona }}
+          </option>
+        </select>
+      </div>
+
+      <div class="zone-info" *ngIf="zonaSeleccionada && sensoresPorZona.get(zonaSeleccionada)">
+        <span class="zone-count">
+          {{ sensoresPorZona.get(zonaSeleccionada)?.length }}
+          sensor{{ sensoresPorZona.get(zonaSeleccionada)?.length === 1 ? '' : 'es' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="cargando">
+    <div class="loading-spinner"></div>
+    <span>Conectando sensores...</span>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards" *ngIf="!cargando">
+
+    <div class="card" [ngClass]="'card-' + getAirStatusClass()">
+      <div class="card-top">
+        <div class="card-meta">
+          <div class="card-icon aire-icon">
+            <lucide-angular [img]="iconAire" style="width:16px;height:16px"></lucide-angular>
+          </div>
+          <span class="card-name">Calidad del Aire</span>
+        </div>
+        <span class="status-pill" [ngClass]="getAirStatusClass()">{{ getAirStatusText() }}</span>
+      </div>
+      <div class="card-value" [ngClass]="getAirStatusClass()">
+        {{ airQuality | number:'1.0-1' }}
+        <span class="card-unit">PM2.5</span>
+      </div>
+      <canvas id="homeAirChart"></canvas>
+    </div>
+
+    <div class="card" [ngClass]="'card-' + getWaterStatusClass()">
+      <div class="card-top">
+        <div class="card-meta">
+          <div class="card-icon agua-icon">
+            <lucide-angular [img]="iconAgua" style="width:16px;height:16px"></lucide-angular>
+          </div>
+          <span class="card-name">Calidad del Agua</span>
+        </div>
+        <span class="status-pill" [ngClass]="getWaterStatusClass()">{{ getWaterStatusText() }}</span>
+      </div>
+      <div class="card-value" [ngClass]="getWaterStatusClass()">
+        {{ waterQuality | number:'1.1-1' }}
+        <span class="card-unit">pH</span>
+      </div>
+      <canvas id="homeWaterChart"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-meta">
+          <div class="card-icon energia-icon">
+            <lucide-angular [img]="iconEnergia" style="width:16px;height:16px"></lucide-angular>
+          </div>
+          <span class="card-name">Consumo Energético</span>
+        </div>
+        <span class="status-pill neutral">Normal</span>
+      </div>
+      <div class="card-value energy-val">
+        {{ energyUsage | number:'1.1-1' }}
+        <span class="card-unit">kWh</span>
+      </div>
+      <canvas id="homeEnergyChart"></canvas>
+    </div>
+<div class="card premium-card" [class.active-plan]="planActual !== 'Básico'">
+  <span class="premium-label">{{ planActual === 'Básico' ? 'MEJORAR A PRO' : 'PLAN ' + planActual }}</span>
+  <h3 class="premium-title">Predicciones con IA</h3>
+  
+  <ng-container *ngIf="planActual === 'Básico'">
+    <p class="premium-desc">Anticipa problemas antes de que ocurran con modelos entrenados con tus datos.</p>
+    <ul class="premium-list">
+      <li>Forecast de consumo 7 días</li>
+      <li>Detección de anomalías</li>
+    </ul>
+    <button class="premium-btn" routerLink="/suscripcion">
+      Ver planes
+      <lucide-angular [img]="iconArrow" style="width:14px;height:14px"></lucide-angular>
+    </button>
+  </ng-container>
+
+  <ng-container *ngIf="planActual !== 'Básico'">
+    <div class="ai-mini-stat">
+      <span class="ai-trend">Tendencia: Estable</span>
+      <div class="ai-prediction">Próximo pico: 18:00 hrs</div>
+    </div>
+    <button class="premium-btn-active" routerLink="/predicciones">
+      Ver análisis completo
+    </button>
+  </ng-container>
+</div>
+
+  </div>
+
+  <!-- ALERTAS -->
+  <div class="alerts-section" *ngIf="!cargando && alertas.length > 0">
+    <div class="alerts-header">
+      <h3 class="alerts-title">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1.5L12.5 11H1.5L7 1.5Z" stroke="#f87171" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M7 6V8M7 10H7.01" stroke="#f87171" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Alertas recientes
+      </h3>
+      <span class="alerts-count">{{ alertas.length }}</span>
+    </div>
+    <div class="alerts-list">
+      <div class="alert-item" *ngFor="let a of alertas">
+        <span class="alert-dot"
+          [style.background]="a.nivel === 'ALTO' || a.nivel === 'CRITICO' ? '#f87171' : a.nivel === 'MEDIO' ? '#facc15' : '#22c55e'">
+        </span>
+        <div class="alert-body">
+          <span class="alert-metrica">{{ a.tipoMetrica }}</span>
+          <span class="alert-msg">{{ a.mensaje }}</span>
+        </div>
+        <span class="alert-badge" [class]="'badge-' + a.nivel.toLowerCase()">{{ a.nivel }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" *ngIf="!cargando && sensores.length === 0">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="20" stroke="#1e293b" stroke-width="2"/>
+      <path d="M24 12C24 12 16 19 16 25C16 29.42 19.58 33 24 33C28.42 33 32 29.42 32 25C32 19 24 12Z" stroke="#334155" stroke-width="1.5"/>
+    </svg>
+    <h3>Sin sensores activos</h3>
+    <p>Registra tu primer sensor para comenzar</p>
+    <button class="btn-agregar" routerLink="/sensores/crear">Agregar sensor</button>
+  </div>
+
+</div>

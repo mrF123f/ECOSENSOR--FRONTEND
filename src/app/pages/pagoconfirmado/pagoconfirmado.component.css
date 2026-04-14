@@ -1,0 +1,109 @@
+/* pago-confirmado.component.css */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.confirmado-page {
+  min-height: 100vh;
+  background: #050a14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.confirmado-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 48px 40px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  animation: fadeUp 0.5s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.confirmado-card.exitoso  { border-color: rgba(34,197,94,0.2); }
+.confirmado-card.pendiente{ border-color: rgba(250,204,21,0.2); }
+.confirmado-card.error    { border-color: rgba(248,113,113,0.2); }
+
+.icono-wrap {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.success-bg { background: rgba(34,197,94,0.08); }
+.pending-bg { background: rgba(250,204,21,0.08); }
+.error-bg   { background: rgba(248,113,113,0.08); }
+
+.conf-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px; font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.conf-desc {
+  font-size: 15px; color: #64748b;
+  line-height: 1.6; margin-bottom: 28px;
+}
+
+.conf-detalle {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.detalle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #64748b;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.detalle-row:last-child { border-bottom: none; }
+.detalle-row strong { color: white; }
+.text-green { color: #22c55e !important; }
+
+.btn-ir {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border: none; border-radius: 12px;
+  color: white; font-size: 15px; font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer; transition: all 0.2s;
+  margin-bottom: 20px;
+}
+
+.btn-ir:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.btn-ir.secondary {
+  background: rgba(248,113,113,0.12);
+  border: 1px solid rgba(248,113,113,0.3);
+  color: #f87171;
+}
+
+.conf-footer {
+  font-size: 12px; color: #334155;
+}
+
+.conf-footer a {
+  color: #60a5fa; text-decoration: none;
+}

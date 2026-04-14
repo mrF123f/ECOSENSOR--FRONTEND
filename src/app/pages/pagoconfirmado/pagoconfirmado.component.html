@@ -1,0 +1,71 @@
+<!-- pago-confirmado.component.html -->
+<div class="confirmado-page">
+
+  <div class="confirmado-card" [ngClass]="estado">
+
+    <!-- Éxito -->
+    <ng-container *ngIf="estado === 'exitoso'">
+      <div class="icono-wrap success-bg">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="20" fill="rgba(34,197,94,0.15)"/>
+          <path d="M12 20L17 25L28 14" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="conf-title">¡Pago exitoso!</h1>
+      <p class="conf-desc">Tu suscripción ha sido activada. Ya puedes usar todas las funciones de tu plan.</p>
+      <div class="conf-detalle">
+        <div class="detalle-row">
+          <span>Plan</span>
+          <strong>{{ planNombre }}</strong>
+        </div>
+        <div class="detalle-row">
+          <span>Estado</span>
+          <strong class="text-green">Activo</strong>
+        </div>
+      </div>
+      <button class="btn-ir" (click)="irDashboard()">
+        Ir al dashboard
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M4 8H12M9 5L12 8L9 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </ng-container>
+
+    <!-- Pendiente -->
+    <ng-container *ngIf="estado === 'pendiente'">
+      <div class="icono-wrap pending-bg">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="20" fill="rgba(250,204,21,0.15)"/>
+          <path d="M20 12V20L25 25" stroke="#facc15" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="conf-title">Pago en proceso</h1>
+      <p class="conf-desc">Tu pago está siendo verificado. Te notificaremos por email cuando se confirme.</p>
+      <button class="btn-ir" (click)="irDashboard()">
+        Volver al inicio
+      </button>
+    </ng-container>
+
+    <!-- Error -->
+    <ng-container *ngIf="estado === 'error'">
+      <div class="icono-wrap error-bg">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="20" fill="rgba(248,113,113,0.15)"/>
+          <path d="M14 14L26 26M26 14L14 26" stroke="#f87171" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="conf-title">Pago no completado</h1>
+      <p class="conf-desc">Hubo un problema con el pago. No se realizó ningún cargo. Puedes intentarlo de nuevo.</p>
+      <button class="btn-ir secondary" (click)="irSuscripcion()">
+        Intentar de nuevo
+      </button>
+    </ng-container>
+
+    <p class="conf-footer">
+      ¿Problemas? Escríbenos a
+      <a href="mailto:soporte&#64;ecosensor.pe">soporte&#64;ecosensor.pe</a>
+    </p>
+
+  </div>
+
+</div>
