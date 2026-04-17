@@ -85,12 +85,12 @@ export class CompletarPerfilComponent implements OnInit {
       rol: 'ADMIN'
     };
 
-    console.log('Enviando perfil:', perfilDTO); // Para depurar
 
       // 2. Si es empresa, primero la creamos o preparamos la lógica  
       // Aquí llamamos a tu nuevo endpoint VIP que vincula al creador
       this.usuarioService.completarPerfil(perfilDTO).subscribe({
         next: (usuarioCreado:any) => {
+          this.usuarioService.invalidarCache(); 
          if (values.tipoUsuario === 'EMPRESA') {
           this.crearEmpresaYVincular(usuarioCreado.id, values);
         } else {
@@ -102,6 +102,7 @@ export class CompletarPerfilComponent implements OnInit {
         error: (err: any) => {
         this.cargando = false;
         this.errorMsg = err?.error?.message ?? 'Error al guardar el perfil. Inténtalo de nuevo.';
+        console.error('Error en completarPerfil:', err);
       }
       });
     

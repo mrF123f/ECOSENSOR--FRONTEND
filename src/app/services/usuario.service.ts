@@ -35,37 +35,25 @@ export class UsuarioService {
   private usuarioSubject = new BehaviorSubject<Usuario | null>(null);
   public usuarioActual$ = this.usuarioSubject.asObservable();
 
-  getPerfil(): Observable<Usuario> {
-    // 1. Si ya tenemos el usuario en el BehaviorSubject, lo devolvemos de inmediato
-    if (this.usuarioSubject.value) {
-      return of(this.usuarioSubject.value);
-    }
-
-    // 2. Si hay una petición cargando, devolvemos la misma para no duplicar
-    if (this.perfilPeticionInFlight$) {
-      return this.perfilPeticionInFlight$;
-    }
-
-    // 3. Creamos la petición y la guardamos en 'perfilPeticionInFlight$'
-    this.perfilPeticionInFlight$ = this.auth.getAccessTokenSilently().pipe(
-      switchMap(token => 
-        this.http.get<Usuario>(`${this.baseUrl}/perfil`, {
-          headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
-        })
-      ),
-      tap(usuario => {
-        this.usuarioSubject.next(usuario); // Actualizamos el estado global
-        this.perfilPeticionInFlight$ = null; // Liberamos la bandera
-      }),
-      catchError((err:any) => {
-        this.perfilPeticionInFlight$ = null; // Liberamos en caso de error
-        throw err;
-      }),
-      shareReplay(1) // Mantiene la respuesta para suscriptores tardíos
-    );
-
-    return this.perfilPeticionInFlight$;
-  }
+  
+getPerfil(): Observable<Usuario> {
+  if (this.usuarioSubject.value) return of(this.usuarioSubject.value);
+  
+  return this.auth.getAccessTokenSilently().pipe(
+    switchMap(token => 
+      this.http.get<Usuario>(`${this.baseUrl}/perfil`, {
+        headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
+      })
+    ),
+    tap(usuario => this.usuarioSubject.next(usuario)),
+    // No guardes la petición en una variable externa si da error, 
+    // mejor deja que el catchError limpie todo.
+    catchError(err => {
+      this.invalidarCache();
+      throw err;
+    })
+  );
+}
 
   completarPerfil(perfil: any): Observable<Usuario> {
     return this.auth.getAccessTokenSilently().pipe(

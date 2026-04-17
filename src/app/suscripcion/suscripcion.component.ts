@@ -90,11 +90,7 @@ export class SuscripcionComponent implements OnInit {
   }
 
   suscribirse(plan: any) {
-    if (!this.empresaId) {
-      this.error = 'Los planes Pro y Enterprise requieren una empresa asociada.';
-      return;
-    }
-
+    
     this.procesando = plan.id;
     this.error = '';
 
@@ -102,7 +98,10 @@ export class SuscripcionComponent implements OnInit {
       switchMap(token =>
         this.http.post<any>(
           `${environment.apiUrl}/api/pagos/iniciar`,
-          { planId: plan.id, empresaId: this.empresaId || null},
+          {
+          planId: plan.id,
+          empresaId: this.empresaId || null
+        },
           { headers: { Authorization: `Bearer ${token}` } }
         )
       )
