@@ -269,7 +269,7 @@ export class SensorFormComponent implements OnInit {
         this.mensaje = `Sensor de ${this.getTipoLabel(s.tipo)} registrado en "${s.ubicacion}"`;
         this.mensajeError = false;
         this.guardando = false;
-        setTimeout(() => this.router.navigate(['/sensores']), 1400);
+        setTimeout(() => this.router.navigate(['/mis-sensores']), 1400);
       },
       error: (err) => {
         const msg = err.error?.message || err.message || '';

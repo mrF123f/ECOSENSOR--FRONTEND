@@ -44,7 +44,7 @@ export const routes: Routes = [
     .then(m => m.CompletarPerfilComponent)
 },
 {
-  path: 'sensores',
+  path: 'mis-sensores',
   canActivate: [authGuard],
   loadComponent: () => import('./sensor/sensor-list.component')
     .then(m => m.SensorListComponent)
