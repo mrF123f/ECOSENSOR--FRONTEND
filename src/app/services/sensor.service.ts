@@ -36,7 +36,7 @@ export class SensorService {
 
 getMisSensores(): Observable<Sensor[]> {
     return this.auth.getAccessTokenSilently().pipe(
-      switchMap(token => this.http.get<Sensor[]>(`${this.baseUrl}/mis-sensores`, {
+      switchMap(token => this.http.get<Sensor[]>(`${this.baseUrl}/sensores`, {
         headers: { Authorization: `Bearer ${token}` }
       }))
     );

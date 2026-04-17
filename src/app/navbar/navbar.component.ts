@@ -34,7 +34,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   get linksHogar() {
     return [
       { path: '/home',       icon: 'grid',    label: 'Dashboard' },
-      { path: '/mis-sensores',   icon: 'sensor',  label: 'Mis sensores' },
+      { path: '/sensores',   icon: 'sensor',  label: 'Mis sensores' },
       { path: '/predicciones', icon: 'ia',    label: 'Predicciones IA', pro: true },
       { path: '/suscripcion', icon: 'plan',   label: 'Mi plan' },
     ];
@@ -43,7 +43,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   get linksEmpresa() {
     return [
       { path: '/company',    icon: 'grid',    label: 'Dashboard' },
-      { path: '/mis-sensores',   icon: 'sensor',  label: 'Sensores' },
+      { path: '/sensores',   icon: 'sensor',  label: 'Sensores' },
       { path: '/predicciones', icon: 'ia',   label: 'Predicciones IA', pro: true },
       { path: '/suscripcion', icon: 'plan',  label: 'Mi plan' },
     ];
@@ -53,7 +53,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     return [
       { path: '/admin',      icon: 'admin',   label: 'Panel Admin' },
       { path: '/company',    icon: 'grid',    label: 'Dashboard' },
-      { path: '/mis-sensores',   icon: 'sensor',  label: 'Sensores' },
+      { path: '/sensores',   icon: 'sensor',  label: 'Sensores' },
       { path: '/predicciones', icon: 'ia',   label: 'Predicciones IA', pro: false },
       { path: '/suscripcion', icon: 'plan',  label: 'Suscripciones' },
     ];
