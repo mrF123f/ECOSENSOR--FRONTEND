@@ -35,19 +35,14 @@ export class AppComponent implements OnInit {
  
 this.mostrarNavbar = !this.rutasSinNavbar.includes(window.location.pathname);
 
-
-    const params = new URLSearchParams(window.location.search);
-
-  if (params.has('code') && params.has('state')) {
-    this.auth.handleRedirectCallback().subscribe({
-      next: () => this.redirigirSegunPerfil(),
-        error: err => {
-          console.error('Auth0 callback error:', err);
-          this.router.navigate(['/']);
-        }
-      
-    });
-  }
+  this.auth.isAuthenticated$.subscribe(isAuthenticated => {
+    if (isAuthenticated) {
+      // Si el usuario acaba de entrar (está en la raíz), lo mandamos a su perfil
+      if (window.location.pathname === '/') {
+        this.redirigirSegunPerfil();
+      }
+    }
+  });
 
     this.auth.error$.subscribe(err => {
       // Si el error persiste, esto te dirá por qué, pero ya no debería salir "Invalid state"
@@ -84,7 +79,7 @@ this.mostrarNavbar = !this.rutasSinNavbar.includes(window.location.pathname);
     });
   }
 
-  // 🔐 LOGIN CON REDIRECCIÓN
+  // 🔐 LOGIN CON REDIRECCIÓN 
   login() {
     this.auth.loginWithRedirect();
   }
