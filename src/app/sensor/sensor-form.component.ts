@@ -30,6 +30,83 @@ export class SensorFormComponent implements OnInit {
   modoZona: 'existente' | 'nueva' = 'existente';
   zonaSeleccionada = '';            // zona elegida del selector
   zonaNueva = '';                   // zona escrita manualmente
+    sugerencias: string[] = [];
+
+
+     // ── REGLAS DE ZONA → TIPOS PERMITIDOS ────────────────────────
+  // Basado en lógica física real:
+  // Tablero / eléctrico → solo ENERGIA
+  // Cisterna / tubería / baño → solo AGUA
+  // Cocina → AGUA + ENERGIA (nunca AIRE — el humo altera lecturas)
+  // Sala / dormitorio / oficina → AIRE + ENERGIA
+  // Jardín / exterior → AIRE + AGUA
+  // Todo lo demás → los tres tipos
+  private readonly reglasZona: Record<string, string[]> = {
+    // SOLO ENERGÍA
+    'tablero':          ['ENERGIA'],
+    'tablero eléctrico':['ENERGIA'],
+    'tablero principal':['ENERGIA'],
+    'panel eléctrico':  ['ENERGIA'],
+    'cuarto de maquinas':['ENERGIA'],
+    // SOLO AGUA
+    'cisterna':         ['AGUA'],
+    'tanque de agua':   ['AGUA'],
+    'tubería':          ['AGUA'],
+    'cuarto de agua':   ['AGUA'],
+    'planta de agua':   ['AGUA'],
+    // AGUA + ENERGÍA (NO AIRE — humo / vapor altera lecturas)
+    'cocina':           ['AGUA', 'ENERGIA'],
+    'lavandería':       ['AGUA', 'ENERGIA'],
+    'lavadero':         ['AGUA', 'ENERGIA'],
+    'comedor':          ['AGUA', 'ENERGIA'],
+    // AGUA + AIRE (exterior)
+    'jardín':           ['AIRE', 'AGUA'],
+    'exterior':         ['AIRE', 'AGUA'],
+    'azotea':           ['AIRE', 'AGUA'],
+    'terraza':          ['AIRE', 'AGUA'],
+    'piscina':          ['AGUA'],
+    // AIRE + ENERGÍA (interiores habitables)
+    'sala':             ['AIRE', 'ENERGIA'],
+    'dormitorio':       ['AIRE', 'ENERGIA'],
+    'habitación':       ['AIRE', 'ENERGIA'],
+    'oficina':          ['AIRE', 'ENERGIA'],
+    'recepción':        ['AIRE', 'ENERGIA'],
+    'sala de reuniones':['AIRE', 'ENERGIA'],
+    'garaje':           ['AIRE', 'ENERGIA'],
+    // BAÑO → AGUA + AIRE (humedad, no energía normalmente)
+    'baño':             ['AGUA', 'AIRE'],
+    'baños':            ['AGUA', 'AIRE'],
+    'servicio':         ['AGUA', 'AIRE'],
+    // INDUSTRIAL — los tres
+    'producción':       ['AIRE', 'AGUA', 'ENERGIA'],
+    'almacén':          ['AIRE', 'ENERGIA'],
+    'área de carga':    ['ENERGIA'],
+  };
+ 
+  // Sugerencias con su ícono y tipo principal
+  readonly sugerenciasHogar = [
+    { label: 'Sala',              icon: '🛋️' },
+    { label: 'Cocina',            icon: '🍳' },
+    { label: 'Dormitorio',        icon: '🛏️' },
+    { label: 'Baño',              icon: '🚿' },
+    { label: 'Garaje',            icon: '🚗' },
+    { label: 'Jardín',            icon: '🌿' },
+    { label: 'Tablero eléctrico', icon: '⚡' },
+    { label: 'Tanque de agua',    icon: '💧' },
+  ];
+ 
+  readonly sugerenciasEmpresa = [
+    { label: 'Oficina',           icon: '💼' },
+    { label: 'Producción',        icon: '🏭' },
+    { label: 'Almacén',           icon: '📦' },
+    { label: 'Recepción',         icon: '🏢' },
+    { label: 'Baños',             icon: '🚿' },
+    { label: 'Tablero principal', icon: '⚡' },
+    { label: 'Cisterna',          icon: '💧' },
+    { label: 'Área de carga',     icon: '🚛' },
+  ];
+ 
+  sugerenciasConIcono: { label: string; icon: string }[] = [];
 
   // Modelos disponibles por tipo
   readonly modelos: Record<string, {value: string, label: string}[]> = {
@@ -137,11 +214,6 @@ export class SensorFormComponent implements OnInit {
     ]
   };
 
-  // Sugerencias de zonas por defecto según tipo de cuenta
-  readonly sugerenciasHogar    = ['Sala', 'Cocina', 'Dormitorio', 'Baño', 'Garaje', 'Jardín', 'Tablero eléctrico', 'Tanque de agua'];
-  readonly sugerenciasEmpresa  = ['Oficina', 'Producción', 'Almacén', 'Recepción', 'Baños', 'Tablero principal', 'Cisterna', 'Área de carga'];
-
-  sugerencias: string[] = [];
 
   constructor(
     private sensorService: SensorService,
@@ -153,52 +225,105 @@ export class SensorFormComponent implements OnInit {
     this.sensorService.getMisSensores().subscribe({
       next: (sensores) => {
         this.zonasExistentes = this.sensorService.getZonas(sensores);
-        // si ya tiene zonas, empezar en modo "existente"
-        // si no tiene ninguna, empezar en modo "nueva"
-        if (this.zonasExistentes.length === 0) {
-          this.modoZona = 'nueva';
-        } else {
-          this.modoZona = 'existente';
+        this.modoZona        = this.zonasExistentes.length === 0 ? 'nueva' : 'existente';
+        if (this.zonasExistentes.length > 0) {
           this.zonaSeleccionada = this.zonasExistentes[0];
           this.sensor.ubicacion = this.zonaSeleccionada;
+          // Auto-seleccionar tipo si la zona solo admite uno
+          this.aplicarReglaZona(this.zonaSeleccionada);
         }
-        // sugerencias según si ya tiene sensores (inferimos tipo)
-        this.sugerencias = this.sugerenciasHogar;
+        this.sugerenciasConIcono = this.sugerenciasHogar;
+        this.sugerencias         = this.sugerenciasHogar.map(s => s.label);
       },
       error: () => {
-        this.modoZona = 'nueva';
-        this.sugerencias = this.sugerenciasHogar;
+        this.modoZona            = 'nueva';
+        this.sugerenciasConIcono = this.sugerenciasHogar;
+        this.sugerencias         = this.sugerenciasHogar.map(s => s.label);
       }
     });
   }
 
-  // ── TIPO ──────────────────────────────────────────────────────
 
-  seleccionarTipo(tipo: string) {
-    if (this.sensor.tipo === tipo) return;
-    this.sensor.tipo = tipo;
-    this.sensor.modelo = '';
-    this.mensaje = '';
+ 
+
+
+  // Devuelve los tipos permitidos para la zona actual
+  get tiposPermitidos(): string[] {
+    const zona = (this.sensor.ubicacion || '').toLowerCase().trim();
+    for (const [key, tipos] of Object.entries(this.reglasZona)) {
+      if (zona.includes(key)) return tipos;
+    }
+    return ['AIRE', 'AGUA', 'ENERGIA']; // sin restricción si zona desconocida
+  }
+ 
+  isTipoPermitido(tipo: string): boolean {
+    return this.tiposPermitidos.includes(tipo);
   }
 
+
+  
+  get mensajeRestriccion(): string {
+    const zona = (this.sensor.ubicacion || '').toLowerCase().trim();
+    for (const [key] of Object.entries(this.reglasZona)) {
+      if (zona.includes(key)) {
+        const permitidos = this.tiposPermitidos;
+        if (permitidos.length === 1) {
+          return `En "${this.sensor.ubicacion}" solo se recomienda sensor de ${this.getTipoLabel(permitidos[0])}.`;
+        }
+        if (permitidos.length === 2) {
+          return `En "${this.sensor.ubicacion}" se recomienda ${permitidos.map(t => this.getTipoLabel(t)).join(' o ')}.`;
+        }
+      }
+    }
+    return '';
+  }
+
+  
+  private aplicarReglaZona(zona: string) {
+    const tipos = this.tiposPermitidos;
+    // Si la zona solo permite un tipo, seleccionarlo automáticamente
+    if (tipos.length === 1) {
+      this.sensor.tipo   = tipos[0];
+      this.sensor.modelo = '';
+    } else if (this.sensor.tipo && !tipos.includes(this.sensor.tipo)) {
+      // Si el tipo actual no está permitido, limpiarlo
+      this.sensor.tipo   = '';
+      this.sensor.modelo = '';
+    }
+  }
+
+  //TIPO
+  
+  seleccionarTipo(tipo: string) {
+    if (!this.isTipoPermitido(tipo)) return;
+    if (this.sensor.tipo === tipo) return;
+    this.sensor.tipo   = tipo;
+    this.sensor.modelo = '';
+    this.mensaje       = '';
+  }
+ 
   get modelosDisponibles() {
     return this.modelos[this.sensor.tipo] ?? [];
   }
 
-  // ── ZONA ──────────────────────────────────────────────────────
 
+  //zona
   seleccionarZonaExistente(zona: string) {
     this.zonaSeleccionada = zona;
     this.sensor.ubicacion = zona;
+    this.aplicarReglaZona(zona);
+
   }
 
-  elegirSugerencia(s: string) {
-    this.zonaNueva = s;
-    this.sensor.ubicacion = s;
+  elegirSugerencia(label: string) {
+    this.zonaNueva        = label;
+    this.sensor.ubicacion = label;
+    this.aplicarReglaZona(label);
   }
 
   onZonaNuevaChange() {
     this.sensor.ubicacion = this.zonaNueva.trim();
+    this.aplicarReglaZona(this.zonaNueva);
   }
 
   onZonaExistenteChange(event: any) {
@@ -213,6 +338,7 @@ export class SensorFormComponent implements OnInit {
     } else {
       this.sensor.ubicacion = this.zonaNueva.trim();
     }
+    this.aplicarReglaZona(this.sensor.ubicacion);
   }
 
   // ── DEVICE ID ─────────────────────────────────────────────────
@@ -257,6 +383,10 @@ export class SensorFormComponent implements OnInit {
       this.setError('Selecciona o escribe una zona para el sensor');
       return;
     }
+    if (!this.isTipoPermitido(this.sensor.tipo)) {
+      this.setError(`El tipo ${this.sensor.tipo} no es recomendado para esta zona.`);
+      return;
+    }
     if (!this.sensor.deviceId?.trim()) {
       this.generarDeviceId();
     }
@@ -266,7 +396,7 @@ export class SensorFormComponent implements OnInit {
 
     this.sensorService.crearSensor(this.sensor).subscribe({
       next: (s) => {
-        this.mensaje = `Sensor de ${this.getTipoLabel(s.tipo)} registrado en "${s.ubicacion}"`;
+        this.mensaje = `✓ Sensor de ${this.getTipoLabel(s.tipo)} registrado en "${s.ubicacion}"`;
         this.mensajeError = false;
         this.guardando = false;
         setTimeout(() => this.router.navigate(['/mis-sensores']), 1400);
@@ -277,8 +407,6 @@ export class SensorFormComponent implements OnInit {
           this.setError('Este ID ya está en uso. Genera uno nuevo.');
         } else if (msg.includes('Límite de sensores')) {
           this.setError('Alcanzaste el límite de sensores de tu plan. Actualiza para agregar más.');
-        } else if (msg.includes('La métrica no está configurada')) {
-          this.setError('Este modelo no está configurado en el sistema. Contacta soporte.');
         } else {
           this.setError(msg || 'Error al registrar el sensor');
         }
@@ -294,11 +422,21 @@ export class SensorFormComponent implements OnInit {
     this.mensajeError = true;
   }
 
+ 
   getTipoLabel(tipo: string): string {
-    return { AIRE: 'calidad del aire', AGUA: 'calidad del agua', ENERGIA: 'consumo energético' }[tipo] ?? tipo;
+    const labels: Record<string, string> = {
+      AIRE:    'calidad del aire',
+      AGUA:    'calidad del agua',
+      ENERGIA: 'consumo energético'
+    };
+    return labels[tipo] ?? tipo;
   }
 
   get formularioListo(): boolean {
-    return !!this.sensor.tipo && !!this.sensor.modelo && !!this.sensor.ubicacion?.trim() && !!this.sensor.deviceId?.trim();
+    return !!this.sensor.tipo
+      && !!this.sensor.modelo
+      && !!this.sensor.ubicacion?.trim()
+      && !!this.sensor.deviceId?.trim()
+      && this.isTipoPermitido(this.sensor.tipo);
   }
 }

@@ -3,7 +3,7 @@
 
   <!-- HEADER -->
   <div class="form-header">
-    <button class="btn-back" (click)="router.navigate(['/sensores'])">
+    <button class="btn-back" (click)="router.navigate(['/mis-sensores'])">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -23,21 +23,37 @@
         <span class="step-num">1</span>
         Tipo de sensor
       </div>
+
+       <div class="zona-restriccion" *ngIf="mensajeRestriccion && sensor.ubicacion">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <circle cx="6.5" cy="6.5" r="5.5" stroke="#60a5fa" stroke-width="1.1"/>
+          <path d="M6.5 4V7M6.5 9H6.51" stroke="#60a5fa" stroke-width="1.1" stroke-linecap="round"/>
+        </svg>
+        {{ mensajeRestriccion }}
+      </div>
+
+
+
       <div class="tipo-grid">
-        <div class="tipo-card" [class.active]="sensor.tipo === 'AIRE'" (click)="seleccionarTipo('AIRE')">
+        <div class="tipo-card" [class.active]="sensor.tipo === 'AIRE'" [class.disabled]="!isTipoPermitido('AIRE')" (click)="seleccionarTipo('AIRE')">
           <div class="tipo-icon aire-bg">🌫</div>
-          <div class="tipo-info"><h3>Aire</h3><p>PM2.5, CO2, TVOC</p></div>
-          <div class="tipo-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="tipo-info"><h3>Aire</h3><p>PM2.5, CO2, TVOC</p>
+          <span class="tipo-no-apto" *ngIf="!isTipoPermitido('AIRE')">No apto para esta zona</span></div>
+          <div class="tipo-check" *ngIf="isTipoPermitido('AIRE')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
         </div>
-        <div class="tipo-card" [class.active]="sensor.tipo === 'AGUA'" (click)="seleccionarTipo('AGUA')">
+        <div class="tipo-card" [class.active]="sensor.tipo === 'AGUA'" [class.disabled]="!isTipoPermitido('AGUA')" (click)="seleccionarTipo('AGUA')">
           <div class="tipo-icon agua-bg">💧</div>
-          <div class="tipo-info"><h3>Agua</h3><p>pH, turbidez, TDS</p></div>
-          <div class="tipo-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="tipo-info"><h3>Agua</h3><p>pH, turbidez, TDS</p>
+            <span class="tipo-no-apto" *ngIf="!isTipoPermitido('AGUA')">No apto para esta zona</span>
+          </div>
+          <div class="tipo-check" *ngIf="isTipoPermitido('AGUA')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
         </div>
-        <div class="tipo-card" [class.active]="sensor.tipo === 'ENERGIA'" (click)="seleccionarTipo('ENERGIA')">
+        <div class="tipo-card" [class.active]="sensor.tipo === 'ENERGIA'" [class.disabled]="!isTipoPermitido('ENERGIA')" (click)="seleccionarTipo('ENERGIA')">
           <div class="tipo-icon energia-bg">⚡</div>
-          <div class="tipo-info"><h3>Energía</h3><p>kWh, voltaje, corriente</p></div>
-          <div class="tipo-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="tipo-info"><h3>Energía</h3><p>kWh, voltaje, corriente</p>
+             <span class="tipo-no-apto" *ngIf="!isTipoPermitido('ENERGIA')">No apto para esta zona</span>
+          </div>
+          <div class="tipo-check" *ngIf="isTipoPermitido('ENERGIA')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
         </div>
       </div>
 

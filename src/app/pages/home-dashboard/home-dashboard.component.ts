@@ -47,6 +47,10 @@ export class HomeDashboardComponent implements OnInit, OnDestroy {
   waterQuality = 7;
   energyUsage  = 0;
 
+   tieneAire    = false;
+  tieneAgua    = false;
+  tieneEnergia = false;
+
   // Gráficos
   chartAir:    any;
   chartWater:  any;
@@ -71,9 +75,7 @@ export class HomeDashboardComponent implements OnInit, OnDestroy {
     this.cargarPerfil();
     this.cargarAlertas();
 
-    this.alertaTimer = setInterval(() => {
-    this.cargarAlertas();
-  }, 60000);
+    this.alertaTimer = setInterval(() => this.cargarAlertas(), 60000);
   }
 
   ngOnDestroy(): void {
@@ -104,18 +106,14 @@ export class HomeDashboardComponent implements OnInit, OnDestroy {
         this.empresaId   = user.empresaId   ?? 0;
         this.planActual = (user.planNombre || user.empresa?.plan?.nombre) ?? 'Básico';
 
-
-        
-
         if (this.tipoUsuario === 'EMPRESA' && this.empresaId > 0) {
           this.cargarSensoresEmpresa(this.empresaId);
         } else {
-          // 🔥 HOGAR: carga sus propios sensores directamente
+          //HOGAR: carga sus propios sensores directamente
           this.cargarSensoresHogar();
         }
       },
-      error: (err) => {
-        console.error('Error perfil:', err);
+      error: () => {
         this.cargando = false;
       }
     });
@@ -178,22 +176,26 @@ export class HomeDashboardComponent implements OnInit, OnDestroy {
   cargarDashboardZona(zona: string) {
     const sensoresDeZona = this.sensoresPorZona.get(zona) ?? [];
   
+     this.tieneAire    = sensoresDeZona.some(s => s.tipo === 'AIRE');
+    this.tieneAgua    = sensoresDeZona.some(s => s.tipo === 'AGUA');
+    this.tieneEnergia = sensoresDeZona.some(s => s.tipo === 'ENERGIA');
+
+
   // Limpieza inicial
   this.airQuality = 0; this.waterQuality = 7; this.energyUsage = 0;
   this.wsService.desuscribirTodo();
+      this.chartAir?.destroy(); this.chartWater?.destroy(); this.chartEnergy?.destroy();
+
 
   if (sensoresDeZona.length === 0) {
-    this.crearGraficos();
+    
     return;
   }
 
-  // Preparamos todas las peticiones en un solo paquete
-  const peticiones = sensoresDeZona.map(s => 
-    this.dashboardService.getDashboardPorSensor(s.id)
-  );
+ 
 
   // Ejecutamos todo y esperamos el final (Evita la lentitud)
-  forkJoin(peticiones).subscribe({
+    forkJoin(sensoresDeZona.map(s => this.dashboardService.getDashboardPorSensor(s.id))).subscribe({
     next: (results: any[]) => {
       results.forEach(data => {
         if (data.promedioPM25 > 0) this.airQuality = data.promedioPM25;
@@ -206,12 +208,12 @@ export class HomeDashboardComponent implements OnInit, OnDestroy {
       this.energyHistory.fill(this.energyUsage);
       
       // SOLO CREAMOS LOS GRÁFICOS UNA VEZ AL FINAL
-      this.crearGraficos();
+      setTimeout(() => this.crearGraficos(), 50);
 
       // Conectamos WebSockets después de cargar la data histórica
       sensoresDeZona.forEach(s => this.conectarWebSocketSensor(s.deviceId));
     },
-    error: () => this.crearGraficos()
+    error: () => setTimeout(() => this.crearGraficos(), 50) 
   });
   }
 
@@ -258,13 +260,18 @@ export class HomeDashboardComponent implements OnInit, OnDestroy {
       }
     };
 
-    const ctxA = document.getElementById('homeAirChart')    as HTMLCanvasElement;
-    const ctxW = document.getElementById('homeWaterChart')  as HTMLCanvasElement;
-    const ctxE = document.getElementById('homeEnergyChart') as HTMLCanvasElement;
-
-    if (ctxA) this.chartAir    = new Chart(ctxA, { type: 'line', data: { labels, datasets: [{ data: [...this.airHistory],    borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)',  fill: true, tension: 0.4, pointRadius: 0 }] }, options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, beginAtZero: true } } } });
-    if (ctxW) this.chartWater  = new Chart(ctxW, { type: 'line', data: { labels, datasets: [{ data: [...this.waterHistory],  borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.1)',  fill: true, tension: 0.4, pointRadius: 0 }] }, options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 0, max: 14 } } } });
-    if (ctxE) this.chartEnergy = new Chart(ctxE, { type: 'bar',  data: { labels, datasets: [{ data: [...this.energyHistory], backgroundColor: 'rgba(59,130,246,0.6)', borderRadius: 4 }] },         options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, beginAtZero: true } } } });
+    if (this.tieneAire) {
+      const el = document.getElementById('homeAirChart') as HTMLCanvasElement;
+      if (el) this.chartAir = new Chart(el, { type: 'line', data: { labels, datasets: [{ data: [...this.airHistory], borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', fill: true, tension: 0.4, pointRadius: 0 }] }, options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, beginAtZero: true } } } });
+    }
+    if (this.tieneAgua) {
+      const el = document.getElementById('homeWaterChart') as HTMLCanvasElement;
+      if (el) this.chartWater = new Chart(el, { type: 'line', data: { labels, datasets: [{ data: [...this.waterHistory], borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.1)', fill: true, tension: 0.4, pointRadius: 0 }] }, options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 0, max: 14 } } } });
+    }
+    if (this.tieneEnergia) {
+      const el = document.getElementById('homeEnergyChart') as HTMLCanvasElement;
+      if (el) this.chartEnergy = new Chart(el, { type: 'bar', data: { labels, datasets: [{ data: [...this.energyHistory], backgroundColor: 'rgba(59,130,246,0.6)', borderRadius: 4 }] }, options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, beginAtZero: true } } } });
+    }
   }
 
   actualizarGraficos() {
