@@ -18,15 +18,32 @@
       </div>
     </div>
     <div class="header-right">
+      <!-- Selector de zona -->
+      <div class="zone-selector-wrap" *ngIf="zonas.length > 0">
+        <svg class="zone-icon" width="13" height="13" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1C4.79 1 3 2.79 3 5C3 8.5 7 13 7 13C7 13 11 8.5 11 5C11 2.79 9.21 1 7 1Z" stroke="currentColor" stroke-width="1.2"/>
+          <circle cx="7" cy="5" r="1.5" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        <select class="zone-select" (change)="cambiarZona($event)">
+          <option *ngFor="let z of zonas" [value]="z" [selected]="z === zonaSeleccionada">{{ z }}</option>
+        </select>
+        <span class="zone-count">{{ sensoresZonaActual }} sensor{{ sensoresZonaActual === 1 ? '' : 'es' }}</span>
+      </div>
       <div class="live-pill">
         <span class="live-dot"></span>
-        Actualizando en vivo
+        En vivo
       </div>
-      <div class="header-date">
-        {{ fechaActual | date:'EEEE, d MMM yyyy · HH:mm' }}
-      </div>
+      <div class="header-date">{{ fechaActual | date:'EEE d MMM · HH:mm' }}</div>
     </div>
   </div>
+
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="cargando">
+    <div class="loading-spinner"></div>
+    <span>Cargando datos de la empresa...</span>
+  </div>
+ 
+  <div *ngIf="!cargando">
 
   <!-- KPI STRIP -->
   <div class="kpi-strip">
@@ -67,30 +84,32 @@
       </div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-icon kpi-aire">
-        <lucide-icon [img]="iconAire" class="lucide-kpi"></lucide-icon>
+      <div class="kpi-icon kpi-aire" *ngIf="empresaTieneAire">
+        <div class="kpi-icon kpi-aire">
+          <lucide-angular [img]="iconAire" style="width:18px;height:18px"></lucide-angular>
+        </div>
       </div>
       <div>
         <div class="kpi-value">{{ airQuality | number:'1.0-0' }}</div>
-        <div class="kpi-label">PM2.5 promedio</div>
+        <div class="kpi-label">PM2.5 zona</div>
       </div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" *ngIf="empresaTieneAgua">
       <div class="kpi-icon kpi-agua">
-        <lucide-icon [img]="iconAgua" class="lucide-kpi"></lucide-icon>
+        <lucide-angular [img]="iconAgua" style="width:18px;height:18px" ></lucide-angular>
       </div>
       <div>
         <div class="kpi-value">{{ waterQuality | number:'1.1-1' }}</div>
-        <div class="kpi-label">pH promedio</div>
+        <div class="kpi-label">pH zona</div>
       </div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" *ngIf="empresaTieneEnergia">
       <div class="kpi-icon kpi-energia">
-        <lucide-icon [img]="iconEnergia" class="lucide-kpi"></lucide-icon>
+        <lucide-angular [img]="iconEnergia" style="width:18px;height:18px"></lucide-angular>
       </div>
       <div>
         <div class="kpi-value">{{ energyUsage | number:'1.1-1' }}</div>
-        <div class="kpi-label">kWh hoy</div>
+        <div class="kpi-label">kWh zona</div>
       </div>
     </div>
   </div>
@@ -101,9 +120,16 @@
     <!-- columna izquierda: gráficos -->
     <div class="charts-col">
 
+       <div class="section-header">
+          <span class="section-title">Zona: {{ zonaSeleccionada || 'General' }}</span>
+          <span class="section-sub" *ngIf="zonas.length > 1">
+            {{ zonas.length }} zonas monitoreadas
+          </span>
+        </div>
+
       <div class="section-title">Métricas en tiempo real</div>
 
-      <div class="chart-card">
+      <div class="chart-card"  *ngIf="tieneAire">
         <div class="chart-header">
           <div class="chart-label">
             <span class="ch-dot aire-dot"></span>
@@ -118,7 +144,7 @@
         <canvas id="airChart"></canvas>
       </div>
 
-      <div class="chart-card">
+      <div class="chart-card" *ngIf="tieneAgua">
         <div class="chart-header">
           <div class="chart-label">
             <span class="ch-dot agua-dot"></span>
@@ -133,7 +159,7 @@
         <canvas id="waterChart"></canvas>
       </div>
 
-      <div class="chart-card">
+      <div class="chart-card" *ngIf="tieneEnergia">
         <div class="chart-header">
           <div class="chart-label">
             <span class="ch-dot energia-dot"></span>
@@ -149,6 +175,19 @@
       </div>
 
     </div>
+
+
+    <!-- Zona sin sensores -->
+        <div class="zona-vacia" *ngIf="!tieneAire && !tieneAgua && !tieneEnergia">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="13" stroke="#334155" stroke-width="1.5"/>
+            <path d="M16 10V16M16 22H16.01" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <p>No hay sensores activos en <strong>{{ zonaSeleccionada }}</strong>.</p>
+          <button class="btn-agregar" routerLink="/sensores/crear">Agregar sensor aquí</button>
+        </div>
+ 
+      </div>
 
     <!-- columna derecha: alertas + acciones -->
     <div class="right-col">
@@ -203,11 +242,11 @@
   <ng-template #planBloqueado>
     <p class="ai-desc">Las predicciones de IA requieren una suscripción <strong>Pro o Enterprise</strong>.</p>
     <div class="ai-locked-msg">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin-bottom: 10px;">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-      </svg>
-      <p>Desbloquea el análisis de datos histórico y alertas preventivas.</p>
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <p>Desbloquea análisis histórico y alertas preventivas.</p>
+            
     </div>
     <button class="ai-btn" routerLink="/suscripcion" style="background: #334155;">Ver planes disponibles</button>
   </ng-template>
@@ -216,23 +255,30 @@
       <!-- Acciones rápidas -->
       <div class="section-title" style="margin-top:20px">Acciones rápidas</div>
       <div class="quick-actions">
-        <button class="action-btn" routerLink="/mis-sensores">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <button class="action-btn" routerLink="/sensores">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
             <rect x="1" y="4" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
             <path d="M5 4V3C5 2.45 5.45 2 6 2H10C10.55 2 11 2.45 11 3V4" stroke="currentColor" stroke-width="1.3"/>
           </svg>
           Gestionar sensores
         </button>
         <button class="action-btn" (click)="exportarReporte()">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
             <path d="M8 3V11M5 8L8 11L11 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M2 13H14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
           </svg>
-          Exportar reporte
+          Exportar reporte PDF
         </button>
+
+        <button class="action-btn" routerLink="/sensores/crear">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+              <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Agregar sensor
+          </button>
+        </div>
       </div>
 
     </div>
   </div>
 
-</div>

@@ -6,7 +6,7 @@ import Chart from 'chart.js/auto';
 import { AlertaService } from '../../services/alertas.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { UsuarioService } from '../../services/usuario.service';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, forkJoin, takeUntil } from 'rxjs';
 import { LucideAngularModule, Wind, Droplets, Zap, ArrowRight } from 'lucide-angular';
 
 @Component({
@@ -18,36 +18,52 @@ import { LucideAngularModule, Wind, Droplets, Zap, ArrowRight } from 'lucide-ang
 })
 export class CompanyDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  planActual: string = 'Básico';
-
-  ecoScore = 100;
-
   readonly iconAire    = Wind;
   readonly iconAgua    = Droplets;
   readonly iconEnergia = Zap;
   readonly iconArrow   = ArrowRight;
 
-  // KPIs reales
-  totalSensores      = 0;
-  sensoresActivos    = 0;
-  alertasAltas       = 0;
-  alertasNoAtendidas = 0;
+  private destroy$  = new Subject<void>();
+  
+  private clockTimer?: any;
+  private alertaSub?: Subscription;
+  
+
+  
 
   // Métricas reales
   airQuality   = 0;
   waterQuality = 7;
   energyUsage  = 0;
   co2          = 0;
-  estadoGeneral = 'BUENO';
 
   isDarkMode = false;
 
-  // UI
-  cargando  = true;
+    //Flags dinámicos por zona
+  tieneAire    = false;
+  tieneAgua    = false;
+  tieneEnergia = false;
+ 
+  //Flags globales de empresa (para KPI strip)
+  empresaTieneAire    = false;
+  empresaTieneAgua    = false;
+  empresaTieneEnergia = false;
+
+
+    // Zonas
+  zonas:           string[] = [];
+  zonaSeleccionada = '';
+  sensoresPorZona  = new Map<string, any[]>();
+  todosSensores:   any[] = [];
+
+
+  // plan
+planActual= 'Básico'
   empresaId = 0;
   fechaActual = new Date();
 
-  // Alertas
+// UI
+  cargando = true;
   alertas: any[] = [];
 
   // Charts
@@ -59,8 +75,15 @@ export class CompanyDashboardComponent implements OnInit, AfterViewInit, OnDestr
   private waterHistory:  number[] = [7, 7, 7, 7, 7, 7];
   private energyHistory: number[] = [0, 0, 0, 0, 0, 0];
 
-  private clockTimer?: any;
-  private alertaSub?: Subscription;
+
+  // KPIs globales (toda la empresa)
+  totalSensores      = 0;
+  sensoresActivos    = 0;
+  alertasAltas       = 0;
+  alertasNoAtendidas = 0;
+  ecoScore           = 100;
+  estadoGeneral      = 'BUENO';
+
 
 
   toggleDarkMode() {
@@ -86,6 +109,8 @@ export class CompanyDashboardComponent implements OnInit, AfterViewInit, OnDestr
   ngAfterViewInit(): void {}
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     clearInterval(this.clockTimer);
     this.alertaSub?.unsubscribe();
     this.chartAir?.destroy();
@@ -96,10 +121,10 @@ export class CompanyDashboardComponent implements OnInit, AfterViewInit, OnDestr
   cargarTodo() {
     this.cargando = true;
 
-    this.usuarioService.getPerfil().subscribe({
+    this.usuarioService.getPerfil().pipe(takeUntil(this.destroy$)).subscribe({
       next: (user: any) => {
         this.empresaId = user.empresaId ?? 0;
-        this.planActual = user.planNombre || 'Básico';
+        this.planActual = user.planNombre ?? 'Básico';
 
         if (!this.empresaId) {
           this.cargando = false;
@@ -113,10 +138,7 @@ export class CompanyDashboardComponent implements OnInit, AfterViewInit, OnDestr
             this.totalSensores      = data.totalSensores      ?? 0;
             this.sensoresActivos    = data.sensoresActivos    ?? 0;
             this.alertasNoAtendidas = data.alertasNoAtendidas ?? 0;
-            this.airQuality         = data.promedioPM25       ?? 0;
-            this.waterQuality       = data.promedioPH         ?? 7;
-            this.energyUsage        = data.consumoEnergia     ?? 0;
-            this.co2                = data.promedioCO2        ?? 0;
+            
             this.estadoGeneral      = data.estadoGeneral      ?? 'BUENO';
 
             this.airHistory.fill(this.airQuality);
@@ -126,20 +148,87 @@ export class CompanyDashboardComponent implements OnInit, AfterViewInit, OnDestr
             this.cargando = false;
             setTimeout(() => this.crearGraficos(), 50);
           },
-          error: (err) => {
-            console.error('Error dashboard empresa:', err);
+        });
+
+         // Cargar sensores y agrupar por zona
+          this.dashboardService.getSensores(this.empresaId).subscribe({
+            next: (sensores: any[]) => {
+              this.todosSensores = sensores;
+              this.agruparPorZona(sensores);
+ 
+              // Flags globales de empresa
+              this.empresaTieneAire    = sensores.some(s => s.tipo === 'AIRE');
+              this.empresaTieneAgua    = sensores.some(s => s.tipo === 'AGUA');
+              this.empresaTieneEnergia = sensores.some(s => s.tipo === 'ENERGIA');
+
+              this.cargando = false;
+            },
+
+          error: () => {
             this.cargando = false;
-            setTimeout(() => this.crearGraficos(), 50);
           }
         });
 
         this.cargarAlertas();
       },
-      error: (err) => {
-        console.error('Error perfil:', err);
+      error: () => {
         this.cargando = false;
       }
     });
+  }
+
+  
+  private agruparPorZona(sensores: any[]) {
+    this.sensoresPorZona = new Map();
+    sensores.forEach(s => {
+      const zona = s.ubicacion?.trim() || 'General';
+      if (!this.sensoresPorZona.has(zona)) this.sensoresPorZona.set(zona, []);
+      this.sensoresPorZona.get(zona)!.push(s);
+    });
+    this.zonas = Array.from(this.sensoresPorZona.keys());
+    if (this.zonas.length > 0) {
+      this.zonaSeleccionada = this.zonas[0];
+      this.cargarMetricasZona(this.zonaSeleccionada);
+    }
+  }
+
+  
+  // ── MÉTRICAS POR ZONA ──────────────────────────────────────────
+ 
+  cargarMetricasZona(zona: string) {
+    const sensoresDeZona = this.sensoresPorZona.get(zona) ?? [];
+ 
+    // 🔥 Qué tipos hay en esta zona específica
+    this.tieneAire    = sensoresDeZona.some(s => s.tipo === 'AIRE');
+    this.tieneAgua    = sensoresDeZona.some(s => s.tipo === 'AGUA');
+    this.tieneEnergia = sensoresDeZona.some(s => s.tipo === 'ENERGIA');
+ 
+    this.airQuality = 0; this.waterQuality = 7; this.energyUsage = 0;
+    this.chartAir?.destroy(); this.chartWater?.destroy(); this.chartEnergy?.destroy();
+ 
+    if (sensoresDeZona.length === 0) return;
+ 
+    forkJoin(sensoresDeZona.map(s => this.dashboardService.getDashboardPorSensor(s.id))).subscribe({
+      next: (results: any[]) => {
+        results.forEach(data => {
+          if (data.promedioPM25   > 0) this.airQuality   = data.promedioPM25;
+          if (data.promedioPH     > 0) this.waterQuality = data.promedioPH;
+          if (data.consumoEnergia > 0) this.energyUsage  = data.consumoEnergia;
+          if (data.promedioCO2    > 0) this.co2          = data.promedioCO2;
+        });
+        this.airHistory.fill(this.airQuality);
+        this.waterHistory.fill(this.waterQuality);
+        this.energyHistory.fill(this.energyUsage);
+        setTimeout(() => this.crearGraficos(), 50);
+      },
+      error: () => setTimeout(() => this.crearGraficos(), 50)
+    });
+  }
+
+  
+  cambiarZona(event: any) {
+    this.zonaSeleccionada = event.target.value;
+    this.cargarMetricasZona(this.zonaSeleccionada);
   }
 
   cargarAlertas() {
@@ -174,28 +263,32 @@ export class CompanyDashboardComponent implements OnInit, AfterViewInit, OnDestr
     const water  = document.getElementById('waterChart')  as HTMLCanvasElement;
     const energy = document.getElementById('energyChart') as HTMLCanvasElement;
 
-    if (air) this.chartAir = new Chart(air, {
-      type: 'line',
-      data: { labels, datasets: [{ data: [...this.airHistory],
-        borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.08)',
-        fill: true, tension: 0.4, pointRadius: 2 }]},
-      options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, beginAtZero: true } } }
-    });
+      if (this.tieneAire) {
+      const el = document.getElementById('airChart') as HTMLCanvasElement;
+      if (el) this.chartAir = new Chart(el, {
+        type: 'line',
+        data: { labels, datasets: [{ data: [...this.airHistory], borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.08)', fill: true, tension: 0.4, pointRadius: 2 }] },
+        options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, beginAtZero: true } } }
+      });
+    }
 
-    if (water) this.chartWater = new Chart(water, {
-      type: 'line',
-      data: { labels, datasets: [{ data: [...this.waterHistory],
-        borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.08)',
-        fill: true, tension: 0.4, pointRadius: 2 }]},
-      options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 0, max: 14 } } }
-    });
+    if (this.tieneAgua) {
+      const el = document.getElementById('waterChart') as HTMLCanvasElement;
+      if (el) this.chartWater = new Chart(el, {
+        type: 'line',
+        data: { labels, datasets: [{ data: [...this.waterHistory], borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.08)', fill: true, tension: 0.4, pointRadius: 2 }] },
+        options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 0, max: 14 } } }
+      });
+    }
 
-    if (energy) this.chartEnergy = new Chart(energy, {
-      type: 'bar',
-      data: { labels, datasets: [{ data: [...this.energyHistory],
-        backgroundColor: 'rgba(59,130,246,0.6)', borderRadius: 4 }]},
-      options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, beginAtZero: true } } }
-    });
+      if (this.tieneEnergia) {
+      const el = document.getElementById('energyChart') as HTMLCanvasElement;
+      if (el) this.chartEnergy = new Chart(el, {
+        type: 'bar',
+        data: { labels, datasets: [{ data: [...this.energyHistory], backgroundColor: 'rgba(59,130,246,0.6)', borderRadius: 4 }] },
+        options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, beginAtZero: true } } }
+      });
+    }
   }
 
  exportarReporte() {
@@ -207,13 +300,12 @@ export class CompanyDashboardComponent implements OnInit, AfterViewInit, OnDestr
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Reporte_Ambiental_${new Date().toLocaleDateString()}.pdf`;
+      link.download = `Reporte_EcoSensor_${new Date().toLocaleDateString('es-PE')}.pdf`;
       link.click();
       window.URL.revokeObjectURL(url); // Limpiamos memoria
     },
     error: (err) => {
       console.error('Error al descargar el PDF:', err);
-      alert('Hubo un error al generar el reporte. Intente de nuevo.');
     }
   });
 }
@@ -223,4 +315,9 @@ export class CompanyDashboardComponent implements OnInit, AfterViewInit, OnDestr
   getWaterStatus(){ return (this.waterQuality >= 6.5 && this.waterQuality <= 8) ? 'Potable' : 'No potable'; }
   getWaterClass() { return (this.waterQuality >= 6.5 && this.waterQuality <= 8) ? 'good' : 'bad'; }
   getEstadoClass(){ return this.estadoGeneral === 'CRITICO' ? 'bad' : this.estadoGeneral === 'MEDIO' ? 'medium' : 'good'; }
+
+    get sensoresZonaActual(): number {
+    return this.sensoresPorZona.get(this.zonaSeleccionada)?.length ?? 0;
+  }
+  
 }
