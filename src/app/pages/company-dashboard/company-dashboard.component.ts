@@ -1,5 +1,5 @@
 // company-dashboard.component.ts
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy,ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
@@ -88,7 +88,8 @@ planActual= 'Básico'
   constructor(
     private alertaService: AlertaService,
     private dashboardService: DashboardService,
-    private usuarioService: UsuarioService
+    private usuarioService: UsuarioService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -108,62 +109,51 @@ planActual= 'Básico'
     this.chartEnergy?.destroy();
   }
 
-  cargarTodo() {
-    this.cargando = true;
 
+cargarTodo() {
+    this.cargando = true;
     this.usuarioService.getPerfil().pipe(takeUntil(this.destroy$)).subscribe({
       next: (user: any) => {
-        this.empresaId = user.empresaId ?? 0;
-        this.planActual = user.planNombre ?? 'Básico';
+        // CORRECCIÓN: Buscamos el ID en cualquier nivel del objeto
+        this.empresaId = user.empresaId || user.empresa?.id || 0;
+        this.planActual = user.planNombre || 'Básico';
 
         if (!this.empresaId) {
+          console.error("No se encontró empresaId en el perfil");
           this.cargando = false;
           return;
         }
 
-        // cargar dashboard empresa
-        this.dashboardService.getDashboardEmpresa(this.empresaId).pipe(takeUntil(this.destroy$)).subscribe({
-          next: (data: any) => {
-            this.ecoScore = data.ecoScore ?? 100;
-            this.totalSensores      = data.totalSensores      ?? 0;
-            this.sensoresActivos    = data.sensoresActivos    ?? 0;
-            this.alertasNoAtendidas = data.alertasNoAtendidas ?? 0;
-            
-            this.estadoGeneral      = data.estadoGeneral      ?? 'BUENO';
+        // Ejecutamos las dos cargas principales en paralelo
+        forkJoin({
+          dashboard: this.dashboardService.getDashboardEmpresa(this.empresaId),
+          sensores: this.dashboardService.getSensores(this.empresaId)
+        }).pipe(takeUntil(this.destroy$)).subscribe({
+          next: (res: any) => {
+            // Datos del dashboard
+            this.totalSensores = res.dashboard.totalSensores || 0;
+            this.sensoresActivos = res.dashboard.sensoresActivos || 0;
+            this.estadoGeneral = res.dashboard.estadoGeneral || 'BUENO';
 
-            
-          },
-        });
+            // Sensores y Flags globales
+            this.todosSensores = res.sensores;
+            this.empresaTieneAire = res.sensores.some((s: any) => s.tipo === 'AIRE');
+            this.empresaTieneAgua = res.sensores.some((s: any) => s.tipo === 'AGUA');
+            this.empresaTieneEnergia = res.sensores.some((s: any) => s.tipo === 'ENERGIA');
 
-         // Cargar sensores y agrupar por zona
-          this.dashboardService.getSensores(this.empresaId).pipe(takeUntil(this.destroy$)).subscribe({
-            next: (sensores: any[]) => {
-              this.todosSensores = sensores;
-              
- 
-              // Flags globales de empresa
-              this.empresaTieneAire    = sensores.some(s => s.tipo === 'AIRE');
-              this.empresaTieneAgua    = sensores.some(s => s.tipo === 'AGUA');
-              this.empresaTieneEnergia = sensores.some(s => s.tipo === 'ENERGIA');
-
-               this.agruparPorZona(sensores);
-
-              this.cargando = false;
-            },
-
-          error: () => {
+            this.agruparPorZona(res.sensores);
             this.cargando = false;
-          }
+            
+            // 👈 Forzamos a Angular a ver los nuevos *ngIf antes de crear los gráficos
+            this.cdr.detectChanges(); 
+          },
+          error: () => this.cargando = false
         });
 
         this.cargarAlertas();
-      },
-      error: () => {
-        this.cargando = false;
       }
     });
   }
-
   
   private agruparPorZona(sensores: any[]) {
     this.sensoresPorZona = new Map();
@@ -185,7 +175,7 @@ planActual= 'Básico'
   cargarMetricasZona(zona: string) {
     const sensoresDeZona = this.sensoresPorZona.get(zona) ?? [];
  
-    // 🔥 Qué tipos hay en esta zona específica
+    // Qué tipos hay en esta zona específica
     this.tieneAire    = sensoresDeZona.some(s => s.tipo === 'AIRE');
     this.tieneAgua    = sensoresDeZona.some(s => s.tipo === 'AGUA');
     this.tieneEnergia = sensoresDeZona.some(s => s.tipo === 'ENERGIA');
@@ -194,6 +184,8 @@ planActual= 'Básico'
     this.chartAir?.destroy(); this.chartWater?.destroy(); this.chartEnergy?.destroy();
  
     if (sensoresDeZona.length === 0) return;
+
+    this.cdr.detectChanges(); 
  
     forkJoin(sensoresDeZona.map(s => this.dashboardService.getDashboardPorSensor(s.id))).pipe(takeUntil(this.destroy$)).subscribe({
       next: (results: any[]) => {
@@ -201,14 +193,14 @@ planActual= 'Básico'
           if (data.promedioPM25   > 0) this.airQuality   = data.promedioPM25;
           if (data.promedioPH     > 0) this.waterQuality = data.promedioPH;
           if (data.consumoEnergia > 0) this.energyUsage  = data.consumoEnergia;
-          if (data.promedioCO2    > 0) this.co2          = data.promedioCO2;
         });
         this.airHistory.fill(this.airQuality);
         this.waterHistory.fill(this.waterQuality);
         this.energyHistory.fill(this.energyUsage);
-        setTimeout(() => this.crearGraficos(), 50);
+
+        setTimeout(() => this.crearGraficos(), 150);
       },
-      error: () => setTimeout(() => this.crearGraficos(), 50)
+      error: () => setTimeout(() => this.crearGraficos(), 200)
     });
   }
 
@@ -239,6 +231,7 @@ planActual= 'Básico'
     const base = {
       animation: false as const,
       responsive: true,
+      maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
         x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#334155', font: { size: 10 } } },
