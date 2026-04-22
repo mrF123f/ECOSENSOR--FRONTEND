@@ -56,7 +56,6 @@ export const routes: Routes = [
     .then(m => m.SensorFormComponent)
 },
 {
-    // 🔥 panel admin — sin authGuard por ahora, agregar cuando implementes rol ADMIN
     path: 'admin',
     canActivate: [authGuard, adminGuard],
     loadComponent: () => import('./pages/admin/admin.component')

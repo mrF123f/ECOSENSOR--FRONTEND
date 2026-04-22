@@ -9,21 +9,28 @@ export const adminGuard: CanActivateFn = (route, state) => {
   const usuarioService = inject(UsuarioService);
   const router = inject(Router);
 
-  // 🛡️ Revisamos el usuario que tenemos en memoria
+  //Revisamos el usuario que tenemos en memoria
  return usuarioService.getPerfil().pipe(
     // 2. Filtramos valores nulos para que no se cierre antes de tiempo
-   take(1),
-    map((u: any) => {
-      // 🔥 verificar SOLO el campo rol que viene de la BD, no del JWT
-      if (u?.rol === 'ADMIN') {
+  
+    map(user => {
+      // verificar SOLO el campo rol que viene de la BD, no del JWT
+      if (user.rol === 'ADMIN' && !user.tipoUsuario) {
         return true;
       }
-      console.warn('Acceso denegado. Rol:', u?.rol);
+
+      if (user.rol === 'ADMIN' && user.tipoUsuario === 'EMPRESA') {
+        console.warn('Redirigiendo a panel de empresa...');
+        router.navigate(['/company']);
+        return false;
+      }
+      
+      console.warn('Acceso denegado. Rol:', user.rol);
       router.navigate(['/company']);
       return false;
     }),
     catchError(() => {
-      router.navigate(['/company']);
+      router.navigate(['/']);
       return of(false);
     })
   );

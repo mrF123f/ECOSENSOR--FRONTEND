@@ -85,16 +85,6 @@ planActual= 'Básico'
   estadoGeneral      = 'BUENO';
 
 
-
-  toggleDarkMode() {
-  this.isDarkMode = !this.isDarkMode;
-  if (this.isDarkMode) {
-    document.body.classList.add('dark-theme');
-  } else {
-    document.body.classList.remove('dark-theme');
-  }
-}
-
   constructor(
     private alertaService: AlertaService,
     private dashboardService: DashboardService,
@@ -132,7 +122,7 @@ planActual= 'Básico'
         }
 
         // cargar dashboard empresa
-        this.dashboardService.getDashboardEmpresa(this.empresaId).subscribe({
+        this.dashboardService.getDashboardEmpresa(this.empresaId).pipe(takeUntil(this.destroy$)).subscribe({
           next: (data: any) => {
             this.ecoScore = data.ecoScore ?? 100;
             this.totalSensores      = data.totalSensores      ?? 0;
@@ -141,25 +131,22 @@ planActual= 'Básico'
             
             this.estadoGeneral      = data.estadoGeneral      ?? 'BUENO';
 
-            this.airHistory.fill(this.airQuality);
-            this.waterHistory.fill(this.waterQuality);
-            this.energyHistory.fill(this.energyUsage);
-
-            this.cargando = false;
-            setTimeout(() => this.crearGraficos(), 50);
+            
           },
         });
 
          // Cargar sensores y agrupar por zona
-          this.dashboardService.getSensores(this.empresaId).subscribe({
+          this.dashboardService.getSensores(this.empresaId).pipe(takeUntil(this.destroy$)).subscribe({
             next: (sensores: any[]) => {
               this.todosSensores = sensores;
-              this.agruparPorZona(sensores);
+              
  
               // Flags globales de empresa
               this.empresaTieneAire    = sensores.some(s => s.tipo === 'AIRE');
               this.empresaTieneAgua    = sensores.some(s => s.tipo === 'AGUA');
               this.empresaTieneEnergia = sensores.some(s => s.tipo === 'ENERGIA');
+
+               this.agruparPorZona(sensores);
 
               this.cargando = false;
             },
@@ -208,7 +195,7 @@ planActual= 'Básico'
  
     if (sensoresDeZona.length === 0) return;
  
-    forkJoin(sensoresDeZona.map(s => this.dashboardService.getDashboardPorSensor(s.id))).subscribe({
+    forkJoin(sensoresDeZona.map(s => this.dashboardService.getDashboardPorSensor(s.id))).pipe(takeUntil(this.destroy$)).subscribe({
       next: (results: any[]) => {
         results.forEach(data => {
           if (data.promedioPM25   > 0) this.airQuality   = data.promedioPM25;
@@ -259,9 +246,6 @@ planActual= 'Básico'
       }
     };
 
-    const air    = document.getElementById('airChart')    as HTMLCanvasElement;
-    const water  = document.getElementById('waterChart')  as HTMLCanvasElement;
-    const energy = document.getElementById('energyChart') as HTMLCanvasElement;
 
       if (this.tieneAire) {
       const el = document.getElementById('airChart') as HTMLCanvasElement;
@@ -319,5 +303,5 @@ planActual= 'Básico'
     get sensoresZonaActual(): number {
     return this.sensoresPorZona.get(this.zonaSeleccionada)?.length ?? 0;
   }
-  
+
 }
