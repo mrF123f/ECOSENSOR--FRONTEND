@@ -269,6 +269,7 @@
     border-radius: 14px;
     padding: 18px 20px;
     transition: border-color .2s;
+    min-height: 280px;
 }
 
 .chart-card:hover {
@@ -338,7 +339,9 @@
 }
 
 canvas {
-    max-height: 100px;
+    width: 100% !important;
+    height: 160px !important;
+    display: block;
 }
 
 /* Zona vacía */

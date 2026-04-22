@@ -24,7 +24,7 @@ getDashboardPorSensor(sensorId: number): Observable<any> {
   descargarReporte(empresaId: number): Observable<Blob> {
     return this.auth.getAccessTokenSilently().pipe(
       switchMap(token =>
-        this.http.get(`${this.baseUrl}/empresa/${empresaId}/reporte`, {
+        this.http.get(`${this.baseUrl}/empresa/${empresaId}/reporte-pdf`, {
           headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
           responseType: 'blob'
         })
