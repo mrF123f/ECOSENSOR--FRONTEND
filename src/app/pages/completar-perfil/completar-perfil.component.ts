@@ -15,7 +15,7 @@ import { EmpresaService } from '../../services/empresa.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterModule,
+    RouterModule
   ],
   templateUrl: './completar-perfil.component.html',
   styleUrls: ['./completar-perfil.component.scss']
@@ -82,28 +82,32 @@ export class CompletarPerfilComponent implements OnInit {
       email: this.emailAuth0,
       tipoUsuario: values.tipoUsuario,
       recibirAlertasEmail: values.recibirAlertasEmail,
-      rol: 'ADMIN'
+      nombreEmpresa: values.datosEmpresa?.nombreEmpresa || null,
+      ruc: values.datosEmpresa?.ruc  || null,
+       planId:              values.datosEmpresa?.planId        ?? 1,
     };
 
 
       // 2. Si es empresa, primero la creamos o preparamos la lógica  
       // Aquí llamamos a tu nuevo endpoint VIP que vincula al creador
       this.usuarioService.completarPerfil(perfilDTO).subscribe({
-        next: (usuarioCreado:any) => {
+        next: () => {
           this.usuarioService.invalidarCache(); 
-         if (values.tipoUsuario === 'EMPRESA') {
-          this.crearEmpresaYVincular(usuarioCreado.id, values);
-        } else {
-          this.usuarioService.invalidarCache();
-          this.router.navigate(['/home']);
-          
-        }
+
+        this.router.navigate([values.tipoUsuario === 'EMPRESA' ? '/suscripcion' : '/home']);
+
         },
         error: (err: any) => {
         this.cargando = false;
-        this.errorMsg = err?.error?.message ?? 'Error al guardar el perfil. Inténtalo de nuevo.';
-        console.error('Error en completarPerfil:', err);
+        if (err.status === 200) {
+          this.usuarioService.invalidarCache();
+              
+        this.router.navigate([values.tipoUsuario === 'EMPRESA' ? '/suscripcion' : '/home']);
+          return;
+        }
+        this.errorMsg = err?.error?.message ?? 'Error al guardar el perfil.';
       }
+      
       });
     
     
@@ -123,15 +127,15 @@ export class CompletarPerfilComponent implements OnInit {
         // Redirección profesional según el flujo de negocio
         this.usuarioService.invalidarCache();
         this.router.navigate(['/suscripcion']);
-      },
+      }, 
       error: (err: any) => {
         this.cargando = false;
         this.errorMsg = 'Tu perfil fue creado pero hubo un error al registrar la empresa. '
           + 'Contacta soporte si el problema persiste.';
         console.error('Error crear empresa:', err);
-      }
+      }  
     });
   }
-
+ 
   
 }

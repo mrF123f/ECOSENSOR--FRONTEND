@@ -31,6 +31,15 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   private subs: Subscription[] = [];
 
   // Links según tipo de usuario
+
+  private get linksAdmin() {
+    return [
+      { path: '/admin',      icon: 'admin',   label: 'Control Total' },
+      { path: '/company',    icon: 'grid',    label: 'Vista Empresa' },
+      { path: '/mis-sensores',   icon: 'sensor',  label: 'Sensores' },
+    ];
+  }
+
   get linksHogar() {
     return [
       { path: '/home',       icon: 'grid',    label: 'Dashboard' },
@@ -49,15 +58,6 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     ];
   }
 
-  get linksAdmin() {
-    return [
-      { path: '/admin',      icon: 'admin',   label: 'Panel Admin' },
-      { path: '/company',    icon: 'grid',    label: 'Dashboard' },
-      { path: '/mis-sensores',   icon: 'sensor',  label: 'Sensores' },
-      { path: '/predicciones', icon: 'ia',   label: 'Predicciones IA', pro: false },
-      { path: '/suscripcion', icon: 'plan',  label: 'Suscripciones' },
-    ];
-  }
 
   get links() {
       if (this.usuario?.rol === 'ADMIN') return this.linksAdmin;
@@ -89,7 +89,8 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
         if (u) {
           this.usuario    = u;
           this.tipoUsuario = u.tipoUsuario ?? 'HOGAR';
-          this.planActual  = (u as any).planNombre ?? 'Básico';
+
+          this.planActual = (u as any).planNombre ?? 'Básico';
           this.iniciales   = this.getIniciales(u.nombre);
          this.definirLinks();
         }
@@ -99,7 +100,11 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private definirLinks() {
-    if (this.usuario?.rol === 'ADMIN') this.menuLinks = this.linksAdmin;
+
+    const esAdminSistema = this.usuario?.rol === 'ADMIN';
+    if (esAdminSistema) {
+      this.menuLinks = this.linksAdmin;
+    } 
   else if (this.tipoUsuario === 'EMPRESA') this.menuLinks = this.linksEmpresa;
   else this.menuLinks = this.linksHogar;
   }
@@ -180,6 +185,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   logout() {
+    this.usuarioService.logout();
     this.auth.logout({ logoutParams: { returnTo: window.location.origin } });
   }
 }

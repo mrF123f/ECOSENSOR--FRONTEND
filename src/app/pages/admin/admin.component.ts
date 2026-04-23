@@ -29,6 +29,13 @@ export class AdminComponent implements OnInit, AfterViewInit {
   cargando   = true;
   accionando: number | null = null;
 
+
+   usuarioEnVista:   any    = null;
+  mostrandoVista    = false;
+  cargandoVista     = false;
+ 
+
+
   private base = `${environment.apiUrl}/api/admin`;
 
   constructor(private http: HttpClient, private auth: AuthService) {}
@@ -40,9 +47,10 @@ export class AdminComponent implements OnInit, AfterViewInit {
   }
 
   private animarEntrada() {
-    if (typeof anime === 'undefined') return;
+    if (typeof anime === 'undefined') return; 
     anime({ targets: '.admin-header', translateY: [-30, 0], opacity: [0, 1], duration: 600, easing: 'easeOutExpo' });
     anime({ targets: '.kpi-card', translateY: [40, 0], opacity: [0, 1], duration: 700, delay: anime.stagger(80), easing: 'easeOutExpo' });
+    anime({ targets: '.mrr-strip',     translateY: [20, 0],  opacity: [0, 1], duration: 600, delay: 400, easing: 'easeOutExpo' });
   }
 
   cargarTodo() {
@@ -61,6 +69,30 @@ export class AdminComponent implements OnInit, AfterViewInit {
       },
       error: () => { this.cargando = false; }
     });
+  }
+
+
+  //
+    verUsuario(u: any) {
+    this.cargandoVista = true;
+    this.auth.getAccessTokenSilently().pipe(
+      switchMap(token => this.http.get<any>(
+        `${this.base}/usuarios/${u.id}/perfil-vista`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      ))
+    ).subscribe({
+      next: (data) => {
+        this.usuarioEnVista = data;
+        this.mostrandoVista = true;
+        this.cargandoVista  = false;
+      },
+      error: () => { this.cargandoVista = false; }
+    });
+  }
+ 
+  cerrarVista() {
+    this.usuarioEnVista = null;
+    this.mostrandoVista = false;
   }
 
   // ── TOGGLE USUARIO (activar/desactivar) ───────────────────────
@@ -133,15 +165,14 @@ export class AdminComponent implements OnInit, AfterViewInit {
   }
 
   getNivelColor(nivel: string): string {
-    const m: Record<string, string> = { CRITICO: '#ef4444', ALTO: '#f97316', MEDIO: '#facc15' };
-    return m[nivel] ?? '#22c55e';
+      return ({ CRITICO: '#ef4444', ALTO: '#f97316', MEDIO: '#facc15' } as any)[nivel] ?? '#22c55e';
+
   }
 
   getEstadoColor(estado: string): string {
-    const m: Record<string, string> = {
+    return ({
       ACTIVA: '#22c55e', CANCELADA: '#f87171', VENCIDA: '#facc15',
       PENDIENTE: '#60a5fa', PAGADO: '#22c55e', FALLIDO: '#f87171'
-    };
-    return m[estado] ?? '#64748b';
+    } as any)[estado] ?? '#64748b';
   }
 }

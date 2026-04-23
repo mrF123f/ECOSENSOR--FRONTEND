@@ -5,6 +5,7 @@ import { SensorListComponent } from './sensor/sensor-list.component';
 import { SensorFormComponent } from './sensor/sensor-form.component';
 import { CompletarPerfilComponent } from './pages/completar-perfil/completar-perfil.component';
 import { adminGuard } from './guards/admin.guard';
+import { planGuard } from './guards/plan.guard';
 
 
 
@@ -71,7 +72,8 @@ export const routes: Routes = [
 
 {
   path: 'predicciones',
-  canActivate: [authGuard],
+  canActivate: [authGuard, planGuard],
+  data: { planes: ['PRO', 'ENTERPRISE'] },
   loadComponent: () => import('./predicciones/predicciones.component')
     .then(m => m.PrediccionesComponent)
 },

@@ -54,27 +54,29 @@ getMisSensores(): Observable<Sensor[]> {
   }
 
   
-  desactivarSensor(id: number): Observable<any> {
+  desactivarSensor(id: number): Observable<string> {
     return this.auth.getAccessTokenSilently().pipe(
       switchMap(token => this.http.put(`${this.baseUrl}/${id}/desactivar`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'text'
       }))
     );
   }
 
   
-  activarSensor(id: number): Observable<any> {
+  activarSensor(id: number): Observable<string> {
     return this.auth.getAccessTokenSilently().pipe(
       switchMap(token => this.http.put(`${this.baseUrl}/${id}/activar`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        responseType : 'text'
       }))
     );
   }
   getSensor(id: number): Observable<Sensor> {
-    return this.withToken(token =>
-      this.http.get<Sensor>(`${this.baseUrl}/${id}`, {
+    return this.auth.getAccessTokenSilently().pipe(
+      switchMap(token => this.http.get<Sensor>(`${this.baseUrl}/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
-      })
+      }))
     );
   }
 

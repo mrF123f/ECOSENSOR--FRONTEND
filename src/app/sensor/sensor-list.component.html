@@ -160,7 +160,7 @@
                 [class.toggle-active]="s.activo"
                 (click)="toggleSensor(s)">
           <span class="toggle-track">
-            <span class="toggle-thumb" [class.thumb-on]="s.activo"></span>
+            <span class="toggle-thumb" [ngClass]="{'thumb-on': s.activo}"></span>
           </span>
           {{ s.activo ? 'Desactivar' : 'Activar' }}
         </button>

@@ -1,5 +1,5 @@
 // sensor-list.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Sensor, SensorService } from '../services/sensor.service';
 import { Router } from '@angular/router';
@@ -21,7 +21,8 @@ export class SensorListComponent implements OnInit {
   constructor(
     private sensorService: SensorService,
     private router: Router,
-    private usuarioService: UsuarioService
+    private usuarioService: UsuarioService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -56,7 +57,18 @@ export class SensorListComponent implements OnInit {
     this.sensorService.activarSensor(sensor.id);
 
   accion.subscribe({
-    next: () => sensor.activo = !estadoOriginal,
+    next: () => {
+      // 1. Cambiamos el estado localmente
+      sensor.activo = !estadoOriginal;
+      
+      // 2. IMPORTANTE: Forzamos a Angular a recrear la referencia del array
+      // Esto hace que el "sensor-dot", el contador de la cabecera y el gráfico se enteren
+      this.sensores = [...this.sensores];
+      
+      // 3. (Opcional) Si quieres que los KPIs de arriba se actualicen al segundo:
+      this.cdr.detectChanges(); // Necesitas inyectar ChangeDetectorRef en el constructor
+    },
+
     error: (err) => {
       console.error("No se pudo cambiar el estado", err);
       // Opcional: mostrar una notificación de error aquí
@@ -77,7 +89,6 @@ export class SensorListComponent implements OnInit {
   });
 }
 
-  // 🔥 helpers para el template
 
   get sensoresActivos(): number {
     return this.sensores.filter(s => s.activo).length;

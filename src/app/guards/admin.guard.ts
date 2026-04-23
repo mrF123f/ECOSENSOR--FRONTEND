@@ -14,19 +14,29 @@ export const adminGuard: CanActivateFn = (route, state) => {
     // 2. Filtramos valores nulos para que no se cierre antes de tiempo
   
     map(user => {
-      // verificar SOLO el campo rol que viene de la BD, no del JWT
-      if (user.rol === 'ADMIN' && !user.tipoUsuario) {
+      if (!user || !user.rol) {
+        router.navigate(['/login']);
+        return false;
+      }
+
+
+    const rolUpper = user.rol.toUpperCase();
+
+      // 3. Si es ADMIN del sistema (el que no tiene empresa asignada en la tabla)
+      if (rolUpper === 'ADMIN' && !user.empresaId) {
+        console.log('Bienvenido, Super Admin. Accediendo al panel de control global.');
         return true;
       }
 
-      if (user.rol === 'ADMIN' && user.tipoUsuario === 'EMPRESA') {
-        console.warn('Redirigiendo a panel de empresa...');
+      console.warn('Acceso denegado al panel global. Redirigiendo a vista de cliente...');
+
+      
+      if (user.empresaId) {
         router.navigate(['/company']);
-        return false;
+      } else {
+        router.navigate(['/dashboard']);
       }
       
-      console.warn('Acceso denegado. Rol:', user.rol);
-      router.navigate(['/company']);
       return false;
     }),
     catchError(() => {
