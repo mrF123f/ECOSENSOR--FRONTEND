@@ -21,9 +21,9 @@ export class SuscripcionComponent implements OnInit {
   planes = [
     {
       id: 1,
-      nombre: 'Básico',
-      precio: 45,        
-      precioUSD: 12,
+      nombre: 'Free / Inicial',
+      precio: 0,        
+      precioUSD: 0,
       periodo: '/mes',
       descripcion: 'Para hogares y uso personal',
       color: 'basic',

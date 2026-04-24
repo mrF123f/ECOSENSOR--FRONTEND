@@ -55,10 +55,10 @@
 
       <button class="plan-btn"
               [class.featured-btn]="plan.popular"
-              [disabled]="procesando !== null"
+              [disabled]="procesando !== null || plan.precio === 0" 
               (click)="suscribirse(plan)">
         <span *ngIf="procesando !== plan.id">
-          Suscribirme al {{ plan.nombre }}
+          {{ plan.precio === 0 ? 'Plan actual' : 'Suscribirme al ' + plan.nombre }}
         </span>
         <span *ngIf="procesando === plan.id" class="loading-text">
           <span class="spinner"></span>

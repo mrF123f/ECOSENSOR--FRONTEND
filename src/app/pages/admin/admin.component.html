@@ -41,41 +41,75 @@
 
     <!--MRR STRIP — lo más importante para el dueño -->
     <div class="mrr-strip">
-      <div class="mrr-card mrr-main">
-        <div class="mrr-icon">💰</div>
+
+       <div class="mrr-card mrr-main">
+        <div class="mrr-icon-wrap mrr-icon-purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 6V8M12 16V18M8.5 9.5C8.5 8.12 10.07 7 12 7C13.93 7 15.5 8.12 15.5 9.5C15.5 10.88 14.5 11.5 12 12C9.5 12.5 8.5 13.12 8.5 14.5C8.5 15.88 10.07 17 12 17C13.93 17 15.5 15.88 15.5 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
         <div>
-          <div class="mrr-value">S/. {{ kpis.mrrSoles ?? 0 }}</div>
-          <div class="mrr-label">MRR — Ingreso mensual recurrente</div>
+          <div class="mrr-value mrr-purple">S/. {{ kpis.mrrSoles ?? 0 }}</div>
+          <div class="mrr-label">MRR — Ingreso mensual</div>
         </div>
       </div>
+ 
+
       <div class="mrr-card">
-        <div class="mrr-icon">📉</div>
+        <div class="mrr-icon-wrap mrr-icon-blue">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 10L12 14L16 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
         <div>
-          <div class="mrr-value churn">{{ kpis.churnRate ?? 0 }}%</div>
+          <div class="mrr-value">S/. {{ (kpis.mrrSoles ?? 0) * 12 }}</div>
+          <div class="mrr-label">ARR — Ingreso anual</div>
+        </div>
+      </div>
+ 
+
+
+       <div class="mrr-card">
+        <div class="mrr-icon-wrap mrr-icon-red">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M22 12H18L15 21L9 3L6 12H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="mrr-value mrr-churn">{{ kpis.churnRate ?? 0 }}%</div>
           <div class="mrr-label">Churn Rate</div>
         </div>
       </div>
-      <div class="mrr-card">
-        <div class="mrr-icon">🏢</div>
+
+       <div class="mrr-card">
+        <div class="mrr-icon-wrap mrr-icon-green">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="7" width="20" height="15" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M16 7V5C16 3.9 15.1 3 14 3H10C8.9 3 8 3.9 8 5V7" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 12V16M9 14H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
         <div>
           <div class="mrr-value">{{ kpis.empresasActivas ?? 0 }}</div>
           <div class="mrr-label">Empresas activas</div>
         </div>
       </div>
+
+
       <div class="mrr-card">
-        <div class="mrr-icon">📡</div>
+        <div class="mrr-icon-wrap mrr-icon-teal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M17 21V19C17 17.9 16.1 17 15 17H9C7.9 17 7 17.9 7 19V21M12 3C14.21 3 16 4.79 16 7C16 9.21 14.21 11 12 11C9.79 11 8 9.21 8 7C8 4.79 9.79 3 12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
         <div>
-          <div class="mrr-value">{{ kpis.sensoresActivos ?? 0 }}<span class="mrr-sub"> / {{ kpis.totalSensores ?? 0 }}</span></div>
-          <div class="mrr-label">Sensores en línea</div>
+          <div class="mrr-value">{{ kpis.suscripcionesActivas ?? 0 }}</div>
+          <div class="mrr-label">Clientes activos</div>
         </div>
       </div>
-      <div class="mrr-card">
-        <div class="mrr-icon">⚠️</div>
-        <div>
-          <div class="mrr-value alert-val">{{ kpis.alertasSinAtender ?? 0 }}</div>
-          <div class="mrr-label">Alertas sin atender</div>
-        </div>
-      </div>
+ 
     </div>
 
 
@@ -102,7 +136,7 @@
         </div>
         <div class="kpi-data">
           <div class="kpi-num">{{ kpis.totalEmpresas ?? 0 }}</div>
-          <div class="kpi-label">Empresas totales</div>
+          <div class="kpi-label">Empresas registradas</div>
         </div>
       </div>
 
@@ -144,6 +178,20 @@
         </div>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon icon-teal">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 2L16 14H2L9 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M9 7V10M9 12.5H9.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="kpi-data">
+          <div class="kpi-num">{{ kpis.sensoresActivos ?? 0 }}<span class="kpi-sub"> / {{ kpis.totalSensores ?? 0 }}</span></div>
+          <div class="kpi-label">Sensores activos</div>
+        </div>
+      </div>
+
+
+        <div class="kpi-card" [class.kpi-alert-active]="(kpis.alertasSinAtender ?? 0) > 0">
         <div class="kpi-icon icon-yellow">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M9 2L16 14H2L9 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
@@ -151,10 +199,11 @@
           </svg>
         </div>
         <div class="kpi-data">
-          <div class="kpi-num">{{ kpis.totalAlertas ?? 0 }}</div>
-          <div class="kpi-label">Alertas totales</div>
+          <div class="kpi-num">{{ kpis.alertasSinAtender ?? 0 }}</div>
+          <div class="kpi-label">Alertas sin atender</div>
         </div>
       </div>
+    
       
     </div>
 
@@ -165,28 +214,28 @@
           <circle cx="7" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2"/>
           <path d="M1.5 12C1.5 9.51 4.02 7.5 7 7.5C9.98 7.5 12.5 9.51 12.5 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
         </svg>
-        👤 Usuarios <span class="tab-count">{{ usuarios.length }}</span>
+        Usuarios <span class="tab-count">{{ usuarios.length }}</span>
       </button>
       <button class="tab-btn" [class.active]="tabActiva === 'empresas'" (click)="cambiarTab('empresas')">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <rect x="1" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
           <path d="M5 5V4C5 3.45 5.45 3 6 3H8C8.55 3 9 3.45 9 4V5" stroke="currentColor" stroke-width="1.2"/>
         </svg>
-        🏢 Empresas <span class="tab-count">{{ empresas.length }}</span>
+        Empresas <span class="tab-count">{{ empresas.length }}</span>
       </button>
       <button class="tab-btn" [class.active]="tabActiva === 'suscripciones'" (click)="cambiarTab('suscripciones')">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
           <path d="M4 7L6 9L10 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        💳 Suscripciones <span class="tab-count">{{ suscripciones.length }}</span>
+        Suscripciones <span class="tab-count">{{ suscripciones.length }}</span>
       </button>
       <button class="tab-btn" [class.active]="tabActiva === 'alertas'" (click)="cambiarTab('alertas')">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path d="M7 1.5L12.5 11H1.5L7 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
           <path d="M7 6V8M7 10H7.01" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
         </svg>
-        🚨 Alertas <span class="tab-count">{{ alertas.length }}</span>
+        Alertas <span class="tab-count">{{ alertas.length }}</span>
       </button>
     </div>
 
@@ -209,8 +258,19 @@
                 <td class="td-main">{{ u.nombre }}</td>
                 <td class="td-sub">{{ u.email }}</td>
                 <td>
-                  <span class="tipo-badge" [class.tipo-empresa]="u.tipoUsuario === 'EMPRESA'">
-                    {{ u.tipoUsuario === 'EMPRESA' ? '🏢' : u.tipoUsuario ? '🏠' : '⚙️' }}
+                  <span class="tipo-badge" [class.tipo-empresa]="u.tipoUsuario==='EMPRESA'">
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                      <ng-container *ngIf="u.tipoUsuario==='EMPRESA'">
+                        <rect x="1" y="4" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                        <path d="M4 4V3C4 2.45 4.45 2 5 2H7C7.55 2 8 2.45 8 3V4" stroke="currentColor" stroke-width="1.2"/>
+                      </ng-container>
+                      <ng-container *ngIf="u.tipoUsuario==='HOGAR'">
+                        <path d="M1 6L6 2L11 6V11H8V8H4V11H1V6Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+                      </ng-container>
+                      <ng-container *ngIf="!u.tipoUsuario">
+                        <path d="M6 1L10.5 9H1.5L6 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+                      </ng-container>
+                    </svg>
                     {{ u.tipoUsuario ?? 'Sistema' }}
                   </span>
                 </td>
@@ -225,7 +285,7 @@
                 <td class="td-sub">{{ u.fechaCreacion | date:'dd/MM/yy' }}</td>
                 <td class="td-acciones">
 
-                  <button class="btn-vista" (click)="verUsuario(u)" title="Ver como este usuario">
+                  <button class="btn-vista" (click)="verUsuario(u)" title="Ver perfil">
                     {{ cargandoVista ? '...' : '👁️' }}
                   </button>
 
@@ -253,7 +313,7 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Empresa</th><th>RUC</th><th>Email</th>
+                <th>Empresa</th><th>RUC</th>
                 <th>Plan</th><th>Precio/mes</th><th>Sensores</th><th>Estado</th><th>Acción</th>
               </tr>
             </thead>
@@ -261,7 +321,6 @@
               <tr *ngFor="let e of empresas" class="table-row" [class.row-inactivo]="!e.activa">
                 <td class="td-main">{{ e.nombre }}</td>
                 <td class="td-mono">{{ e.ruc ?? '—' }}</td>
-                <td class="td-sub">{{ e.email ?? '—' }}</td>
                 <td><span class="plan-chip">{{ e.plan ?? 'Sin plan' }}</span></td>
                  <td class="td-mono">{{ e.precioPlan ? 'S/. ' + e.precioPlan : '—' }}</td>
                 <td class="td-center">{{ e.totalSensores ?? 0 }}</td>
@@ -345,7 +404,7 @@
               <div class="alerta-top">
                 <span class="alerta-tipo">{{ a.tipoMetrica }}</span>
                 <span class="alerta-empresa">{{ a.empresa }}</span>
-                <span class="alerta-sensor">{{ a.sensor }}</span>
+                <span class="alerta-sensor">{{ a.sensor }}</span> 
               </div>
               <div class="alerta-msg">{{ a.mensaje }}</div>
             </div>
@@ -392,11 +451,11 @@
           <span class="vista-val">{{ usuarioEnVista.empresa ?? '—' }}</span>
         </div>
         <div class="vista-row">
-          <span class="vista-key">Plan activo</span>
-          <span class="vista-val">{{ usuarioEnVista.planNombre ?? '—' }}</span>
+          <span class="vista-key">Plan activo</span>  
+          <span class="vista-val">{{ usuarioEnVista.planNombre ?? 'Básico' }}</span>
         </div>
         <div class="vista-row">
-          <span class="vista-key">Total sensores</span>
+          <span class="vista-key">Sensores</span>
           <span class="vista-val">{{ usuarioEnVista.totalSensores ?? 0 }}</span>
         </div>
         <div class="vista-row">
@@ -406,7 +465,7 @@
           </span>
         </div>
         <div class="vista-note">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
             <circle cx="7" cy="7" r="5.5" stroke="#60a5fa" stroke-width="1.2"/>
             <path d="M7 6V9M7 4.5H7.01" stroke="#60a5fa" stroke-width="1.2" stroke-linecap="round"/>
           </svg>
