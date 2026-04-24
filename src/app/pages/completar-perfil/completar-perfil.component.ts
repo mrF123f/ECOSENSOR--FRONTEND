@@ -82,7 +82,7 @@ export class CompletarPerfilComponent implements OnInit {
       email: this.emailAuth0,
       tipoUsuario: values.tipoUsuario,
       recibirAlertasEmail: values.recibirAlertasEmail,
-      nombreEmpresa: values.datosEmpresa?.nombreEmpresa || null,
+      empresaNombre: values.datosEmpresa?.nombreEmpresa || null,
       ruc: values.datosEmpresa?.ruc  || null,
        planId:              values.datosEmpresa?.planId        ?? 1,
     };
@@ -101,7 +101,7 @@ export class CompletarPerfilComponent implements OnInit {
         this.cargando = false;
         if (err.status === 200) {
           this.usuarioService.invalidarCache();
-              
+
         this.router.navigate([values.tipoUsuario === 'EMPRESA' ? '/suscripcion' : '/home']);
           return;
         }

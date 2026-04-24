@@ -35,11 +35,12 @@
 
       <div class="plan-header">
         <div class="plan-name">{{ plan.nombre }}</div>
-        <div class="plan-price">
-          S/. {{ plan.precio }}
-          <span class="plan-period">{{ plan.periodo }}</span>
+                <div class="plan-price">
+          {{ plan.precio > 0 ? 'S/. ' + plan.precio : 'Gratis' }}
+          <span class="plan-period" *ngIf="plan.precio > 0">{{ plan.periodo }}</span>
         </div>
-        <div class="plan-usd">≈ ${{ plan.precioUSD }} USD</div>
+        <div class="plan-usd" *ngIf="plan.precio > 0">≈ ${{ plan.precioUSD }} USD</div>
+        <div class="plan-usd" *ngIf="plan.precio === 0">Ideal para empezar</div>
         <div class="plan-desc">{{ plan.descripcion }}</div>
       </div>
 

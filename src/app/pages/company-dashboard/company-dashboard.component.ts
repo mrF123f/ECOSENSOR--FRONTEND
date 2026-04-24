@@ -156,7 +156,14 @@ cargarTodo() {
   }
   
   private agruparPorZona(sensores: any[]) {
+    console.log("Sensores recibidos del backend:", sensores);
     this.sensoresPorZona = new Map();
+    if (!sensores || sensores.length === 0) {
+    this.zonas = [];
+    this.cargando = false;
+    return;
+  }
+  
     sensores.forEach(s => {
       const zona = s.ubicacion?.trim() || 'General';
       if (!this.sensoresPorZona.has(zona)) this.sensoresPorZona.set(zona, []);
