@@ -138,6 +138,16 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  irAlPerfil() {
+  this.router.navigate(['/perfil']);
+}
+
+// Para evitar que al hacer clic en Logout también se intente ir al perfil
+stopProp(event: Event) {
+  event.stopPropagation();
+}
+
+
   toggleCollapse() {
     this.collapsed = !this.collapsed;
 

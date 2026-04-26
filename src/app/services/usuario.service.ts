@@ -68,6 +68,24 @@ getPerfil(): Observable<Usuario> {
     );
   }
 
+  actualizarPerfil(perfil: any): Observable<Usuario> {
+  return this.auth.getAccessTokenSilently().pipe(
+    switchMap(token => {
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      });
+      // Usamos PUT para actualizar datos existentes
+      return this.http.put<Usuario>(`${this.baseUrl}/perfil`, perfil, { headers });
+    }),
+    tap(usuario => {
+      // Súper importante: actualizamos el BehaviorSubject para que el 
+      // Navbar y toda la app vean el nuevo nombre/datos al instante
+      this.usuarioSubject.next(usuario);
+    })
+  );
+}
+
   invalidarCache() {
     this.usuarioSubject.next(null);
     this.perfilPeticionInFlight$ = null;

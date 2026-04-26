@@ -89,13 +89,17 @@
     </div>
 
     <!-- Usuario -->
-    <div class="nav-user">
-      <div class="user-avatar">{{ iniciales }}</div>
+    <div class="nav-user" (click)="irAlPerfil()" 
+     style="cursor: pointer;" 
+     [attr.title]="collapsed ? 'Ver mi perfil' : null">
+      <div class="user-avatar" [class.avatar-active]="esActivo('/perfil')">
+    {{ iniciales }}
+  </div>
       <div class="user-info" *ngIf="!collapsed">
         <span class="user-name">{{ usuario?.nombre || 'Usuario' }}</span>
         <span class="user-email">{{ usuario?.email || '' }}</span>
       </div>
-      <button class="logout-btn" (click)="logout()" [title]="collapsed ? 'Cerrar sesión' : ''">
+      <button class="logout-btn" (click)="stopProp($event); logout()" [title]="collapsed ? 'Cerrar sesión' : ''">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M6 2H3C2.45 2 2 2.45 2 3V13C2 13.55 2.45 14 3 14H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
           <path d="M11 5L14 8L11 11M14 8H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>

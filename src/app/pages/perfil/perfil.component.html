@@ -1,0 +1,444 @@
+<div class="perfil-page">
+
+  <!-- BG decorativo -->
+  <div class="bg-glow"></div>
+
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="cargando">
+    <div class="loading-ring"></div>
+    <span>Cargando perfil...</span>
+  </div>
+
+  <div class="perfil-layout" *ngIf="!cargando">
+
+    <!-- ── SIDEBAR de perfil ── -->
+    <aside class="perfil-sidebar">
+
+      <!-- Avatar -->
+      <div class="avatar-wrap">
+        <div class="avatar-ring">
+          <div class="avatar-circle">{{ iniciales }}</div>
+        </div>
+        <div class="avatar-glow"></div>
+      </div>
+
+      <h2 class="sidebar-nombre">{{ usuario?.nombre }}</h2>
+      <p class="sidebar-email">{{ usuario?.email }}</p>
+
+      <div class="plan-chip" [style.--plan-color]="getPlanColor()">
+        <span class="plan-dot"></span>
+        Plan {{ usuario?.planNombre ?? 'Básico' }}
+      </div>
+
+      <div class="sidebar-meta">
+        <div class="meta-item">
+          <span class="meta-icon">🏢</span>
+          <span class="meta-val">{{ usuario?.empresaNombre ?? (usuario?.tipoUsuario === 'EMPRESA' ? 'Sin empresa' : 'Hogar') }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-icon">🛡️</span>
+          <span class="meta-val">{{ usuario?.rol }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-icon">📅</span>
+          <span class="meta-val">Desde {{ usuario?.fechaCreacion | date:'MMM yyyy' }}</span>
+        </div>
+      </div>
+
+      <!-- Nav tabs -->
+      <nav class="sidebar-nav">
+        <button class="nav-item" [class.active]="tabActiva === 'perfil'" (click)="cambiarTab('perfil')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M2 14C2 11.24 4.69 9 8 9C11.31 9 14 11.24 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Mis datos
+        </button>
+        <button class="nav-item" [class.active]="tabActiva === 'notificaciones'" (click)="cambiarTab('notificaciones')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2C8 2 5 4.5 5 8V11L3.5 12.5H12.5L11 11V8C11 4.5 8 2 8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M6.5 12.5C6.5 13.33 7.17 14 8 14C8.83 14 9.5 13.33 9.5 12.5" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="11" cy="3" r="2" fill="#f87171"/>
+          </svg>
+          Notificaciones
+        </button>
+        <button class="nav-item" [class.active]="tabActiva === 'preferencias'" (click)="cambiarTab('preferencias')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M8 1V3M8 13V15M1 8H3M13 8H15M3.22 3.22L4.64 4.64M11.36 11.36L12.78 12.78M3.22 12.78L4.64 11.36M11.36 4.64L12.78 3.22" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Preferencias
+        </button>
+        <button class="nav-item" [class.active]="tabActiva === 'seguridad'" (click)="cambiarTab('seguridad')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1L13 3.5V8C13 11 10.8 13.7 8 14C5.2 13.7 3 11 3 8V3.5L8 1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M6 8L7.5 9.5L10 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Seguridad
+        </button>
+      </nav>
+
+    </aside>
+
+    <!-- ── CONTENIDO PRINCIPAL ── -->
+    <main class="perfil-main">
+
+      <!-- Mensaje éxito/error -->
+      <div class="msg-success" *ngIf="mensajeExito">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="7" stroke="#22c55e" stroke-width="1.3"/>
+          <path d="M5 8L7 10L11 6" stroke="#22c55e" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ mensajeExito }}
+      </div>
+
+      <!-- ══ TAB: MIS DATOS ══ -->
+      <div class="tab-panel" *ngIf="tabActiva === 'perfil'">
+        <div class="panel-header">
+          <h3 class="panel-title">Mis datos personales</h3>
+          <p class="panel-desc">Actualiza tu nombre y email de recuperación</p>
+        </div>
+
+        <form [formGroup]="formPerfil" (ngSubmit)="guardarPerfil()">
+          <div class="fields-grid">
+
+            <div class="field-group">
+              <label class="field-label">Nombre completo</label>
+              <div class="field-wrap">
+                <svg class="field-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <circle cx="7.5" cy="4.5" r="3" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M1 14C1 11.24 3.91 9 7.5 9C11.09 9 14 11.24 14 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <input class="field-input" formControlName="nombre" placeholder="Tu nombre completo"/>
+              </div>
+              <span class="field-error" *ngIf="formPerfil.get('nombre')?.invalid && formPerfil.get('nombre')?.touched">
+                Mínimo 3 caracteres
+              </span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Email (Auth0 — solo lectura)</label>
+              <div class="field-wrap field-readonly">
+                <svg class="field-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <rect x="1" y="3" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M1 5L7.5 9L14 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <input class="field-input" [value]="usuario?.email" readonly/>
+              </div>
+              <span class="field-hint">El email se gestiona desde Auth0</span>
+            </div>
+
+            <div class="field-group full-width">
+              <label class="field-label">Email de recuperación</label>
+              <div class="field-wrap">
+                <svg class="field-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <rect x="1" y="3" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M1 5L7.5 9L14 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <input class="field-input" formControlName="emailRecuperacion" placeholder="backup@tuempresa.com"/>
+              </div>
+              <span class="field-hint">Recibe alertas críticas aunque tu cuenta principal falle</span>
+            </div>
+
+          </div>
+
+          <div class="info-card">
+            <span class="info-icon">ℹ️</span>
+            <p>Tu cuenta está vinculada a <strong>Auth0</strong>. Para cambiar el email principal, hazlo desde la configuración de seguridad.</p>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="guardando || formPerfil.invalid">
+              <span *ngIf="!guardando">Guardar cambios</span>
+              <span *ngIf="guardando" class="btn-loading">
+                <div class="mini-spinner"></div> Guardando...
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ══ TAB: NOTIFICACIONES ══ -->
+      <div class="tab-panel" *ngIf="tabActiva === 'notificaciones'">
+        <div class="panel-header">
+          <h3 class="panel-title">Notificaciones y alertas</h3>
+          <p class="panel-desc">Controla cuándo y cómo te avisamos</p>
+        </div>
+
+        <form [formGroup]="formNotificaciones" (ngSubmit)="guardarNotificaciones()">
+
+          <!-- Frecuencia de resumen -->
+          <div class="section-block">
+            <h4 class="section-subtitle">Frecuencia de resumen</h4>
+            <div class="freq-cards">
+              <label class="freq-card" [class.selected]="formNotificaciones.value.frecuenciaResumen === 'diario'">
+                <input type="radio" formControlName="frecuenciaResumen" value="diario" style="display:none"/>
+                <span class="freq-icon">📅</span>
+                <span class="freq-label">Diario</span>
+                <span class="freq-desc">Cada mañana a las 8am</span>
+              </label>
+              <label class="freq-card" [class.selected]="formNotificaciones.value.frecuenciaResumen === 'semanal'">
+                <input type="radio" formControlName="frecuenciaResumen" value="semanal" style="display:none"/>
+                <span class="freq-icon">📊</span>
+                <span class="freq-label">Semanal</span>
+                <span class="freq-desc">Cada lunes</span>
+              </label>
+              <label class="freq-card" [class.selected]="formNotificaciones.value.frecuenciaResumen === 'nunca'">
+                <input type="radio" formControlName="frecuenciaResumen" value="nunca" style="display:none"/>
+                <span class="freq-icon">🔕</span>
+                <span class="freq-label">Nunca</span>
+                <span class="freq-desc">Solo alertas críticas</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Tipos de alerta -->
+          <div class="section-block">
+            <h4 class="section-subtitle">Tipos de alerta por email</h4>
+            <div class="toggle-list">
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <span class="toggle-dot" style="background:#ef4444"></span>
+                  <div>
+                    <p class="toggle-name">Alertas críticas</p>
+                    <p class="toggle-desc">Valores fuera de rango peligroso</p>
+                  </div>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" formControlName="alertasCriticas">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <span class="toggle-dot" style="background:#f97316"></span>
+                  <div>
+                    <p class="toggle-name">Alertas altas</p>
+                    <p class="toggle-desc">Advertencias preventivas</p>
+                  </div>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" formControlName="alertasAltas">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <span class="toggle-dot" style="background:#facc15"></span>
+                  <div>
+                    <p class="toggle-name">Alertas medias</p>
+                    <p class="toggle-desc">Anomalías leves</p>
+                  </div>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" formControlName="alertasMedias">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <span class="toggle-dot" style="background:#3b82f6"></span>
+                  <div>
+                    <p class="toggle-name">Reporte semanal</p>
+                    <p class="toggle-desc">Resumen de métricas en PDF</p>
+                  </div>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" formControlName="reporteSemanal">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Métricas de interés -->
+          <div class="section-block">
+            <h4 class="section-subtitle">Métricas de interés</h4>
+            <p class="section-hint">Selecciona qué quieres monitorear en tu dashboard</p>
+            <div class="metricas-grid">
+              <button type="button" class="metrica-chip"
+                      *ngFor="let m of metricasDisponibles"
+                      [class.selected]="metricasSeleccionadas.has(m.key)"
+                      [style.--m-color]="m.color"
+                      (click)="toggleMetrica(m.key)">
+                <span class="metrica-icon">{{ m.icon }}</span>
+                <span>{{ m.label }}</span>
+                <svg *ngIf="metricasSeleccionadas.has(m.key)" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6L5 9L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="guardando">
+              <span *ngIf="!guardando">Guardar preferencias</span>
+              <span *ngIf="guardando" class="btn-loading"><div class="mini-spinner"></div> Guardando...</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ══ TAB: PREFERENCIAS ══ -->
+      <div class="tab-panel" *ngIf="tabActiva === 'preferencias'">
+        <div class="panel-header">
+          <h3 class="panel-title">Preferencias de la app</h3>
+          <p class="panel-desc">Idioma, zona horaria y visualización</p>
+        </div>
+
+        <form [formGroup]="formPreferencias" (ngSubmit)="guardarPreferencias()">
+          <div class="fields-grid">
+
+            <div class="field-group">
+              <label class="field-label">Idioma de la interfaz</label>
+              <div class="field-wrap select-wrap">
+                <svg class="field-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M4 7.5C4 5 5.5 3 7.5 3C9.5 3 11 5 11 7.5C11 10 9.5 12 7.5 12C5.5 12 4 10 4 7.5Z" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M2 7.5H13" stroke="currentColor" stroke-width="1.2"/>
+                </svg>
+                <select class="field-select" formControlName="idioma">
+                  <option value="es">🇵🇪 Español</option>
+                  <option value="en">🇺🇸 English</option>
+                  <option value="pt">🇧🇷 Português</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Zona horaria</label>
+              <div class="field-wrap select-wrap">
+                <svg class="field-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M7.5 3.5V7.5L10 9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <select class="field-select" formControlName="zonaHoraria">
+                  <option value="America/Lima">🕐 Lima (UTC-5)</option>
+                  <option value="America/Bogota">🕐 Bogotá (UTC-5)</option>
+                  <option value="America/Santiago">🕐 Santiago (UTC-3)</option>
+                  <option value="America/Buenos_Aires">🕐 Buenos Aires (UTC-3)</option>
+                  <option value="America/Mexico_City">🕐 Ciudad de México (UTC-6)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Unidad de temperatura</label>
+              <div class="unit-selector">
+                <label class="unit-opt" [class.active]="formPreferencias.value.unidadTemp === 'celsius'">
+                  <input type="radio" formControlName="unidadTemp" value="celsius" style="display:none"/>
+                  °C Celsius
+                </label>
+                <label class="unit-opt" [class.active]="formPreferencias.value.unidadTemp === 'fahrenheit'">
+                  <input type="radio" formControlName="unidadTemp" value="fahrenheit" style="display:none"/>
+                  °F Fahrenheit
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="toggle-list" style="margin-top:8px">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-dot" style="background:#475569"></span>
+                <div>
+                  <p class="toggle-name">Tema oscuro</p>
+                  <p class="toggle-desc">Interfaz con fondo oscuro (recomendado)</p>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" formControlName="temaOscuro">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="guardando">
+              <span *ngIf="!guardando">Guardar preferencias</span>
+              <span *ngIf="guardando" class="btn-loading"><div class="mini-spinner"></div> Guardando...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ══ TAB: SEGURIDAD ══ -->
+      <div class="tab-panel" *ngIf="tabActiva === 'seguridad'">
+        <div class="panel-header">
+          <h3 class="panel-title">Seguridad de la cuenta</h3>
+          <p class="panel-desc">Tu cuenta está protegida por Auth0</p>
+        </div>
+
+        <div class="security-cards">
+
+          <div class="security-card">
+            <div class="security-icon sec-blue">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <rect x="4" y="10" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M8 10V7a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="11" cy="14.5" r="1.5" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="security-info">
+              <h4>Contraseña</h4>
+              <p>Cambia tu contraseña desde el portal de Auth0. Serás redirigido para hacerlo de forma segura.</p>
+            </div>
+            <button class="btn-secondary" (click)="cambiarPassword()">
+              Cambiar contraseña →
+            </button>
+          </div>
+
+          <div class="security-card">
+            <div class="security-icon sec-green">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M11 2L18 5.5V10C18 14 14.8 17.7 11 18C7.2 17.7 4 14 4 10V5.5L11 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M8 10L10 12L14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="security-info">
+              <h4>Autenticación con Google / Social</h4>
+              <p>Si iniciaste sesión con Google u otra red social, tu contraseña se gestiona desde ese proveedor.</p>
+            </div>
+            <div class="status-badge ok">Activo</div>
+          </div>
+
+          <div class="security-card">
+            <div class="security-icon sec-purple">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <rect x="3" y="8" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M8 8V6C8 4.34 9.34 3 11 3C12.66 3 14 4.34 14 6V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M11 13V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="11" cy="12.5" r="1" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="security-info">
+              <h4>Sesiones activas</h4>
+              <p>Auth0 gestiona tus sesiones de forma segura. Si sospechas de acceso no autorizado, cambia tu contraseña inmediatamente.</p>
+            </div>
+            <div class="status-badge ok">Segura</div>
+          </div>
+
+          <div class="security-card danger-card">
+            <div class="security-icon sec-red">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M11 3L19 14H3L11 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M11 9V12M11 15H11.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="security-info">
+              <h4>Zona de peligro</h4>
+              <p>Estas acciones son irreversibles. Contacta a soporte si deseas eliminar tu cuenta permanentemente.</p>
+            </div>
+            <button class="btn-danger-outline">
+              Contactar soporte
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>

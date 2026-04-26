@@ -77,6 +77,12 @@ export const routes: Routes = [
   loadComponent: () => import('./predicciones/predicciones.component')
     .then(m => m.PrediccionesComponent)
 },
+{
+  path: 'perfil',
+  canActivate: [authGuard],
+  loadComponent: () => import('./pages/perfil/perfil.component')
+    .then(m => m.PerfilComponent)
+},
 
   {
     path: '**',

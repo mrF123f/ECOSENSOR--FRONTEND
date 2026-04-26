@@ -13,7 +13,7 @@
   background: #080f1e;
   border-right: 1px solid rgba(255,255,255,0.06);
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
   padding: 20px 12px;
   position: sticky;
   top: 0;
@@ -25,6 +25,20 @@
 
 .nav-sidebar.collapsed {
   width: 68px;
+}
+
+.nav-sidebar.collapsed .nav-user {
+  padding: 8px;
+  justify-content: center;
+}
+
+.nav-sidebar.collapsed .logout-btn {
+  display: none; /* Ocultar logout en colapsado para dejar solo el avatar */
+}
+
+.nav-sidebar.collapsed .plan-badge {
+  justify-content: center;
+  padding: 8px 0;
 }
 
 /* ── LOGO ── */
@@ -77,11 +91,12 @@
 .nav-section-label {
   font-size: 10px;
   font-weight: 600;
-  color: #1e293b;
+  color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 0 10px;
   margin-bottom: 8px;
+  margin-top: 15px;
 }
 
 .nav-link-item {
@@ -216,14 +231,24 @@
 
 /* ── NAV USER ── */
 .nav-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.06);
-  overflow: hidden;
+  cursor: pointer; /* Indispensable */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-user:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(59, 130, 246, 0.3); /* Un brillo azul sutil */
+  transform: translateY(-1px); /* Efecto de elevación */
+}
+
+/* Estado activo: cuando estás en la página de perfil */
+.nav-user.active-user {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.nav-user.active-user .user-avatar {
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
 }
 
 .user-avatar {
@@ -234,6 +259,20 @@
   font-size: 13px; font-weight: 700;
   color: white;
   flex-shrink: 0;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.user-avatar::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background: #22c55e; /* Online */
+  border: 2px solid #080f1e;
+  border-radius: 50%;
 }
 
 .user-info {
