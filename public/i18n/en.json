@@ -1,0 +1,34 @@
+{
+  "APP": {
+    "TITULO": "Settings",
+    "SELECCIONAR_IDIOMA": "Interface language",
+    "GUARDAR": "Save changes"
+  },
+  "ONBOARDING": {
+    "IZQ_TITULO": "Monitor what<br><em>matters</em>",
+    "IZQ_DESC": "Air, water, and energy in real-time. With AI that anticipates problems before they occur.",
+    "FEAT_1": "Real-time dashboard with WebSocket",
+    "FEAT_2": "Intelligent email alerts",
+    "FEAT_3": "AI Predictions (Pro Plan)",
+    "FEAT_4": "Exportable PDF reports",
+    "SENSORES_ACTIVOS": "+200 active sensors today",
+    "DER_TITULO": "Set up your account",
+    "DER_SUBTITULO": "How will you use EcoSensor?",
+    "REGISTRADO_COMO": "Registered as",
+    "TIPO_HOGAR_TIT": "Home",
+    "TIPO_HOGAR_DESC": "For families and personal users",
+    "TIPO_EMPRESA_TIT": "Company",
+    "TIPO_EMPRESA_DESC": "Large-scale management",
+    "LABEL_NOMBRE": "Your name",
+    "PLACEHOLDER_NOMBRE": "What's your name?",
+    "ERROR_NOMBRE": "Name is required",
+    "LABEL_EMPRESA": "Company Name",
+    "LABEL_RUC": "RUC (11 digits)",
+    "TOGGLE_TIT": "Email Alerts",
+    "TOGGLE_DESC": "We'll notify you about anomalies.",
+    "BTN_CONTINUAR": "Continue to dashboard",
+    "BTN_GUARDANDO": "Saving...",
+    "LEGAL": "By continuing you accept our",
+    "TERMINOS": "Terms"
+  }
+}

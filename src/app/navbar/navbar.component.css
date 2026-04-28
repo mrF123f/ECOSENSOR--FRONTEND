@@ -231,8 +231,16 @@
 
 /* ── NAV USER ── */
 .nav-user {
-  cursor: pointer; /* Indispensable */
+  display: flex;         
+  align-items: center;   
+  gap: 12px;            
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 4px;
 }
 
 .nav-user:hover {
@@ -252,7 +260,7 @@
 }
 
 .user-avatar {
-  width: 34px; height: 34px;
+  width: 36px; height: 36px;
   border-radius: 10px;
   background: linear-gradient(135deg, #3b82f6, #06b6d4);
   display: flex; align-items: center; justify-content: center;
@@ -270,7 +278,7 @@
   right: -2px;
   width: 10px;
   height: 10px;
-  background: #22c55e; /* Online */
+  background: #22c55e;
   border: 2px solid #080f1e;
   border-radius: 50%;
 }
@@ -286,7 +294,7 @@
 
 .user-name {
   font-size: 13px; font-weight: 600;
-  color: #e2e8f0;
+  color: #f1f5f9;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -294,7 +302,7 @@
 
 .user-email {
   font-size: 11px;
-  color: #334155;
+  color: #475569;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -1,0 +1,34 @@
+{
+  "APP": {
+    "TITULO": "Configurações",
+    "SELECCIONAR_IDIOMA": "Idioma da interface",
+    "GUARDAR": "Salvar alterações"
+  },
+  "ONBOARDING": {
+    "IZQ_TITULO": "Monitore o que<br><em>importa</em>",
+    "IZQ_DESC": "Ar, água e energia em tempo real. Com inteligência artificial que antecipa problemas antes que ocorram.",
+    "FEAT_1": "Dashboard em tempo real com WebSocket",
+    "FEAT_2": "Alertas inteligentes por e-mail",
+    "FEAT_3": "Previsões com IA (Plano Pro)",
+    "FEAT_4": "Relatórios exportáveis ​​em PDF",
+    "SENSORES_ACTIVOS": "+200 sensores ativos hoje",
+    "DER_TITULO": "Configure sua conta",
+    "DER_SUBTITULO": "Como você usará o EcoSensor?",
+    "REGISTRADO_COMO": "Registrado como",
+    "TIPO_HOGAR_TIT": "Casa",
+    "TIPO_HOGAR_DESC": "Para famílias e usuários pessoais",
+    "TIPO_EMPRESA_TIT": "Empresa",
+    "TIPO_EMPRESA_DESC": "Gestão em larga escala",
+    "LABEL_NOMBRE": "Seu nome",
+    "PLACEHOLDER_NOMBRE": "Como você se chama?",
+    "ERROR_NOMBRE": "O nome é obrigatório",
+    "LABEL_EMPRESA": "Nome da Empresa",
+    "LABEL_RUC": "RUC (11 dígitos)",
+    "TOGGLE_TIT": "Alertas por E-mail",
+    "TOGGLE_DESC": "Nós o notificaremos sobre anomalias.",
+    "BTN_CONTINUAR": "Continuar para o dashboard",
+    "BTN_GUARDANDO": "Salvando...",
+    "LEGAL": "Ao continuar, você aceita nossos",
+    "TERMINOS": "Termos"
+  }
+}

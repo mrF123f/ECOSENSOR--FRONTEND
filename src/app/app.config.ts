@@ -1,12 +1,11 @@
 import { ApplicationConfig, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors, HttpRequest, HttpHandlerFn } from '@angular/common/http';
+import { provideHttpClient, withInterceptors  } from '@angular/common/http';
 import { routes } from './app.routes';
 import { provideAuth0, AuthService } from '@auth0/auth0-angular';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { switchMap, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { environment } from './environments/environment';
 
 
@@ -17,7 +16,7 @@ export const appConfig: ApplicationConfig = {
 
     provideRouter(routes),
 
-    // 🔐 AUTH0 CONFIG
+    //AUTH0 CONFIG
     provideAuth0({
       domain: 'dev-6u1q0s2nx3pub4do.us.auth0.com',
       clientId: '6E6cqN5AhiK1oIEWD8p1FUlqrYc4TyX4',
