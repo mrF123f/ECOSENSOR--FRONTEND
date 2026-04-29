@@ -172,6 +172,7 @@ stopProp(event: Event) {
   }
 
   esActivo(path: string): boolean {
+    if (path === '/perfil') return this.rutaActual === '/perfil';
     return this.rutaActual.startsWith(path);
   }
 

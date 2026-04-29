@@ -35,12 +35,15 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 login() {
+
   this.auth.loginWithRedirect({
     appState: { 
-      target: '/completar-perfil' // <-- Esto le dice a Angular a dónde ir tras el callback
+      target: '/completar-perfil'
     }
   });
-}  logout() { this.auth.logout({ logoutParams: { returnTo: window.location.origin } }); }
+} 
+
+logout() { this.auth.logout({ logoutParams: { returnTo: window.location.origin } }); }
 
   private animarEntrada() {
     if (typeof anime === 'undefined') return;

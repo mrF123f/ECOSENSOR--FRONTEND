@@ -1,4 +1,14 @@
-@import '@angular/material/prebuilt-themes/indigo-pink.css';/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+ 
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -15,28 +25,27 @@ body {
   animation: gradientMove 12s ease infinite;
 }
 
-@keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+::selection {
+  background: rgba(59,130,246,0.25);
+  color: white;
 }
+
 :root {
   --bg-dash: #f8fafc;
   --card-bg: #ffffff;
   --text-main: #1e293b;
-  --border-color: #e2e8f0;
+  --text-secondary:#64748b;
+  --border-color:  rgba(255,255,255,0.07);
+  --accent-blue:   #3b82f6;
+  --accent-cyan:   #06b6d4;
+  --accent-green:  #22c55e;
+  --accent-red:    #f87171;
+  --accent-yellow: #facc15;
+  --accent-purple: #a78bfa;
 }
 
-body.dark-theme {
-  --bg-dash: #0f172a; /* Azul muy oscuro */
-  --card-bg: #1e293b; /* Gris oscuro */
-  --text-main: #f1f5f9;
-  --border-color: #334155;
-}
-
-/* Aplica estas variables a tus componentes */
-.company-dash { background-color: var(--bg-dash); color: var(--text-main); }
-.kpi-card, .chart-card, .alerts-card { 
-  background-color: var(--card-bg); 
-  border: 1px solid var(--border-color); 
-}

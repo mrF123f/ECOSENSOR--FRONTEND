@@ -3,6 +3,7 @@ import { Component, OnInit,ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Sensor, SensorService } from '../services/sensor.service';
 import { Router } from '@angular/router';
+import { take } from 'rxjs';  
 import { UsuarioService } from '../services/usuario.service';
 
 @Component({
@@ -77,16 +78,22 @@ export class SensorListComponent implements OnInit {
   }
 
   irDashboard() {
- this.usuarioService.getPerfil().subscribe({
-    next: (user) => {
-      if (user.tipoUsuario === 'EMPRESA') {
-        this.router.navigate(['/company']);
+        this.usuarioService.usuarioActual$.pipe(take(1)).subscribe(cachedUser => {
+      if (cachedUser) {
+        const destino = cachedUser.tipoUsuario === 'EMPRESA' ? '/company' : '/home';
+        this.router.navigate([destino]);
       } else {
-        this.router.navigate(['/home']);
-      }
+        // Sin caché: pedir al backend
+        this.usuarioService.getPerfil().subscribe({
+          next: (user: any) => {
+            const destino = user.tipoUsuario === 'EMPRESA' ? '/company' : '/home';
+            this.router.navigate([destino]);
+      
     },
-    error: () => this.router.navigate(['/home'])
-  });
+         error: () => this.router.navigate(['/home'])
+      });
+    }
+});
 }
 
 

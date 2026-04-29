@@ -25,7 +25,6 @@ export class PagoConfirmadoComponent implements OnInit {
   ngOnInit(): void {
     // Pay-me redirige con ?status=APPROVED o ?status=REJECTED
     const status = this.route.snapshot.queryParamMap.get('status') ?? '';
-    const order  = this.route.snapshot.queryParamMap.get('orderId') ?? '';
 
     if (status === 'APPROVED' || status === 'PAGADO') {
       this.estado = 'exitoso';
@@ -37,6 +36,9 @@ export class PagoConfirmadoComponent implements OnInit {
 
     // cargar el plan actual del perfil
     if (this.estado === 'exitoso') {
+
+      this.usuarioService.invalidarCache();
+
       this.usuarioService.getPerfil().subscribe({
         next: (user: any) => {
           this.planNombre = user.planNombre ?? 'Pro';
@@ -46,6 +48,8 @@ export class PagoConfirmadoComponent implements OnInit {
   }
 
   irDashboard() {
+     this.usuarioService.invalidarCache();
+     
     this.usuarioService.getPerfil().subscribe({
       next: (user: any) => {
         if (user.tipoUsuario === 'EMPRESA') {

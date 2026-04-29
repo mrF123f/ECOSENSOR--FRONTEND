@@ -26,7 +26,7 @@ export class AppComponent implements OnInit {
   usuario: any;
   title = 'ecosensor-frontend';
 
-    private readonly rutasSinNavbar = ['/', '/completar-perfil', '/suscripcion/confirmado'];
+    private readonly rutasSinNavbar = ['/', '/completar-perfil', '/suscripcion','/suscripcion/confirmado'];
     mostrarNavbar = false;
 
   ngOnInit(): void {
@@ -81,13 +81,6 @@ export class AppComponent implements OnInit {
   }
  
 
- getToken() {
-    this.auth.getAccessTokenSilently().subscribe({
-      next: token => console.log("Bearer token:", token),
-      error: err => console.error(err)
-    });
-  }
-
   // LOGIN CON REDIRECCIÓN 
   login() {
     this.auth.loginWithRedirect();
@@ -96,18 +89,6 @@ export class AppComponent implements OnInit {
    logout() {
     this.usuarioService.logout();
     this.auth.logout({ logoutParams: { returnTo: window.location.origin } });
-  }
-
-  cargarPerfil() {
-    this.usuarioService.getPerfil().subscribe({
-      next: (data) => {
-        console.log("Usuario desde API:", data);
-        this.usuario = data;
-      },
-      error: (err) => {
-        console.error("Error:", err);
-      }
-    });
   }
 
 }

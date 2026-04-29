@@ -6,6 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '@auth0/auth0-angular';
 import { UsuarioService } from '../services/usuario.service';
 import { switchMap } from 'rxjs/operators';
+import { environment } from '../environments/environment';
+
 
 declare var anime: any;
 
@@ -46,6 +48,9 @@ export class PrediccionesComponent implements OnInit, AfterViewInit {
   filtroNivel = 'TODOS';
   empresaId = 0;
 
+    private apiUrl = environment.apiUrl;
+
+
   constructor(
     private http: HttpClient,
     private auth: AuthService,
@@ -57,14 +62,16 @@ export class PrediccionesComponent implements OnInit, AfterViewInit {
       next: (user: any) => {
         this.planActual  = user.planNombre ?? 'Básico';
         this.empresaId   = user.empresaId  ?? 0;
-        this.planBloqueado = this.planActual === 'Básico';
+         this.planBloqueado = this.planActual.toLowerCase() === 'Básico' ||
+                             this.planActual.toLowerCase() === 'Basico';
 
         if (!this.planBloqueado) {
           this.cargarAnomalias();
         } else {
           this.cargando = false;
         }
-      }
+      },
+      error: () => { this.cargando = false; }
     });
   }
 
@@ -98,7 +105,7 @@ export class PrediccionesComponent implements OnInit, AfterViewInit {
     this.auth.getAccessTokenSilently().pipe(
       switchMap(token =>
         this.http.get<any[]>(
-          `http://localhost:8080/api/alertas/mis-alertas`,
+          `${this.apiUrl}/api/alertas/mis-alertas`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
       )

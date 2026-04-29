@@ -2,9 +2,10 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpHeaders  } from '@angular/common/http';
 import { AuthService } from '@auth0/auth0-angular';
 import { switchMap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 
@@ -55,22 +56,31 @@ export class AdminComponent implements OnInit, AfterViewInit {
 
   cargarTodo() {
     this.cargando = true;
-    this.auth.getAccessTokenSilently().subscribe({
-      next: (token) => {
-        const h = { Authorization: `Bearer ${token}` };
-        this.http.get<any>(`${this.base}/kpis`, { headers: h }).subscribe({
-          next: d => { this.kpis = d; this.cargando = false; },
-          error: () => { this.cargando = false; }
+     this.auth.getAccessTokenSilently().pipe(
+      switchMap(token => {
+        const h = { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
+        return forkJoin({
+          kpis:          this.http.get<any>   (`${this.base}/kpis`,          h),
+          usuarios:      this.http.get<any[]> (`${this.base}/usuarios`,      h),
+          empresas:      this.http.get<any[]> (`${this.base}/empresas`,      h),
+          suscripciones: this.http.get<any[]> (`${this.base}/suscripciones`, h),
+          alertas:       this.http.get<any[]> (`${this.base}/alertas`,       h),
         });
-        this.http.get<any[]>(`${this.base}/usuarios`, { headers: h }).subscribe({ next: d => this.usuarios = d });
-        this.http.get<any[]>(`${this.base}/empresas`, { headers: h }).subscribe({ next: d => this.empresas = d });
-        this.http.get<any[]>(`${this.base}/suscripciones`, { headers: h }).subscribe({ next: d => this.suscripciones = d });
-        this.http.get<any[]>(`${this.base}/alertas`, { headers: h }).subscribe({ next: d => this.alertas = d });
+      })
+    ).subscribe({
+      next: (res) => {
+        this.kpis          = res.kpis;
+        this.usuarios      = res.usuarios;
+        this.empresas      = res.empresas;
+        this.suscripciones = res.suscripciones;
+        this.alertas       = res.alertas;
+        this.cargando      = false;
+        // Animar solo cuando todos los datos ya están
+        setTimeout(() => this.animarEntrada(), 50);
       },
       error: () => { this.cargando = false; }
     });
   }
-
 
   //
     verUsuario(u: any) {
