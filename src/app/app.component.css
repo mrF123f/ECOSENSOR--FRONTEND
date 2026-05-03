@@ -1,6 +1,7 @@
 /* app.component.css */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── LAYOUT PRINCIPAL (tu original) ── */
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -14,27 +15,133 @@
   overflow-x: hidden;
 }
 
-/* cuando hay navbar, el contenido toma el resto del espacio */
 .app-content.with-nav {
   flex: 1;
 }
 
+/* Footer */
 .footer-qoribex {
   padding: 20px;
   text-align: center;
-  color: #666; /* Gris suave */
+  color: #334155;
   font-size: 0.85rem;
-  border-top: 1px solid rgba(0,0,0,0.05); /* Una línea muy sutil */
-  margin-top: 40px; /* Para que no esté pegado al contenido */
+  border-top: 1px solid rgba(255,255,255,0.05);
+  margin-top: 40px;
 }
 
-/* Si quieres que el texto resalte un poco más en negrita */
 .footer-qoribex p {
   font-weight: 500;
   letter-spacing: 0.5px;
 }
+
 @media (max-width: 768px) {
-  .app-content.with-nav {
-    margin-left: 0;
-  }
+  .app-content.with-nav { margin-left: 0; }
+}
+
+/* ── WARM-UP SCREEN ── */
+.warmup-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #050a14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.warmup-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 40px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 24px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  animation: fadeUp .4s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.warmup-logo {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  animation: pulse-logo 2s ease-in-out infinite;
+}
+
+@keyframes pulse-logo {
+  0%,100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.3); }
+  50%      { box-shadow: 0 0 0 12px rgba(59,130,246,0); }
+}
+
+.warmup-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.02em;
+  margin-bottom: -4px;
+}
+
+.warmup-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.warmup-dots span {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #3b82f6;
+  animation: bounce-dot .9s ease-in-out infinite;
+}
+
+.warmup-dots span:nth-child(2) { animation-delay: .15s; }
+.warmup-dots span:nth-child(3) { animation-delay: .30s; }
+
+@keyframes bounce-dot {
+  0%,80%,100% { transform: scale(0.6); opacity: 0.4; }
+  40%          { transform: scale(1);   opacity: 1; }
+}
+
+.warmup-msg {
+  font-size: 14px;
+  color: #64748b;
+  min-height: 20px;
+  transition: opacity .4s;
+}
+
+.warmup-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.warmup-fill {
+  height: 100%;
+  width: 35%;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+  border-radius: 3px;
+  animation: slide-bar 1.8s ease-in-out infinite;
+}
+
+@keyframes slide-bar {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(400%); }
+}
+
+.warmup-hint {
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.6;
 }
