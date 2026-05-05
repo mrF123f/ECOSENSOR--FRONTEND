@@ -13,7 +13,7 @@
   background: #080f1e;
   border-right: 1px solid rgba(255,255,255,0.06);
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   padding: 20px 12px;
   position: sticky;
   top: 0;
@@ -23,18 +23,14 @@
   z-index: 50;
 }
 
-.nav-sidebar.collapsed {
-  width: 68px;
-}
+.nav-sidebar.collapsed { width: 68px; }
 
 .nav-sidebar.collapsed .nav-user {
   padding: 8px;
   justify-content: center;
 }
 
-.nav-sidebar.collapsed .logout-btn {
-  display: none; /* Ocultar logout en colapsado para dejar solo el avatar */
-}
+.nav-sidebar.collapsed .logout-btn { display: none; }
 
 .nav-sidebar.collapsed .plan-badge {
   justify-content: center;
@@ -91,62 +87,112 @@
 .nav-section-label {
   font-size: 10px;
   font-weight: 600;
-  color: #475569;
+  color: #1e293b;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 0 10px;
-  margin-bottom: 8px;
-  margin-top: 15px;
+  margin-bottom: 6px;
+  margin-top: 12px;
 }
 
+/* ── LINK ITEM ── */
 .nav-link-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 10px;
+  padding: 9px 10px;
   border-radius: 10px;
   cursor: pointer;
   position: relative;
   transition: background 0.15s, color 0.15s;
-  color: #475569;
+  color: #334155;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible; /* tooltip necesita overflow visible */
+  border: 1px solid transparent;
 }
 
 .nav-link-item:hover {
   background: rgba(255,255,255,0.04);
-  color: #94a3b8;
+  color: #64748b;
+  border-color: rgba(255,255,255,0.05);
 }
 
+/* Activo — un solo estilo limpio, sin la línea lateral */
 .nav-link-item.active {
   background: rgba(59,130,246,0.1);
   color: #60a5fa;
-  border: 1px solid rgba(59,130,246,0.15);
+  border-color: rgba(59,130,246,0.18);
+}
+
+.nav-link-item.active .link-icon {
+  color: #60a5fa;
 }
 
 .nav-link-item.locked {
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .nav-link-item.locked:hover {
   background: rgba(167,139,250,0.06);
   color: #a78bfa;
+  border-color: rgba(167,139,250,0.1);
 }
 
+/* ── TOOLTIP (colapsado) ── */
+.nav-link-item .tooltip {
+  display: none;
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1e293b;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  z-index: 999;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* Flecha del tooltip */
+.nav-link-item .tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: rgba(255,255,255,0.1);
+}
+
+.nav-sidebar.collapsed .nav-link-item:hover .tooltip {
+  display: block;
+  animation: tooltipIn .15s ease;
+}
+
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateY(-50%) translateX(-4px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+/* ── ICONO ── */
 .link-icon {
-  width: 36px; height: 36px;
+  width: 34px; height: 34px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   border-radius: 8px;
   transition: background 0.15s;
+  color: #334155;
 }
 
-.nav-link-item.active .link-icon {
-  background: rgba(59,130,246,0.15);
-}
+.nav-link-item:hover .link-icon { color: #64748b; }
 
 .nav-label {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
   flex: 1;
   transition: opacity 0.2s;
@@ -164,23 +210,87 @@
   flex-shrink: 0;
 }
 
-.active-indicator {
-  position: absolute;
-  right: 0; top: 50%;
-  transform: translateY(-50%);
-  width: 3px; height: 20px;
-  background: #3b82f6;
-  border-radius: 3px 0 0 3px;
-}
-
 /* ── SPACER ── */
 .nav-spacer { flex: 1; }
+
+/* ── ECO SCORE STRIP ── */
+.eco-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(34,197,94,0.05);
+  border: 1px solid rgba(34,197,94,0.12);
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.eco-strip.eco-medio {
+  background: rgba(250,204,21,0.05);
+  border-color: rgba(250,204,21,0.12);
+}
+
+.eco-strip.eco-malo {
+  background: rgba(248,113,113,0.05);
+  border-color: rgba(248,113,113,0.12);
+}
+
+.nav-sidebar.collapsed .eco-strip {
+  justify-content: center;
+  padding: 8px;
+}
+
+.eco-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.eco-info { flex: 1; min-width: 0; }
+
+.eco-label {
+  font-size: 10px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.eco-score-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #22c55e;
+  line-height: 1;
+}
+
+.eco-strip.eco-medio .eco-score-val { color: #facc15; }
+.eco-strip.eco-malo  .eco-score-val { color: #f87171; }
+
+.eco-bar {
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.eco-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: #22c55e;
+  transition: width 1s ease;
+}
+
+.eco-strip.eco-medio .eco-bar-fill { background: #facc15; }
+.eco-strip.eco-malo  .eco-bar-fill { background: #f87171; }
 
 /* ── BOTTOM ── */
 .nav-bottom {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .plan-badge {
@@ -192,24 +302,22 @@
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 10px;
   font-size: 12px;
-  color: #475569;
+  color: #334155;
   white-space: nowrap;
   overflow: hidden;
 }
 
 .plan-dot {
-  width: 7px; height: 7px;
+  width: 6px; height: 6px;
   border-radius: 50%;
-  background: #475569;
+  background: #334155;
   flex-shrink: 0;
-  animation: pulse 3s infinite;
+  animation: pulse-dot 3s infinite;
 }
 
-.plan-dot.pro-dot {
-  background: #22c55e;
-}
+.plan-dot.pro-dot { background: #22c55e; }
 
-@keyframes pulse {
+@keyframes pulse-dot {
   0%,100% { opacity: 1; }
   50%      { opacity: 0.4; }
 }
@@ -217,8 +325,8 @@
 .upgrade-btn {
   margin-left: auto;
   padding: 3px 8px;
-  background: rgba(59,130,246,0.15);
-  border: 1px solid rgba(59,130,246,0.25);
+  background: rgba(59,130,246,0.12);
+  border: 1px solid rgba(59,130,246,0.22);
   border-radius: 6px;
   color: #60a5fa;
   font-size: 11px; font-weight: 600;
@@ -227,60 +335,53 @@
   transition: all 0.2s;
   white-space: nowrap;
 }
-.upgrade-btn:hover { background: rgba(59,130,246,0.25); }
+.upgrade-btn:hover { background: rgba(59,130,246,0.22); }
 
 /* ── NAV USER ── */
 .nav-user {
-  display: flex;         
-  align-items: center;   
-  gap: 12px;            
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 14px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-top: 4px;
+  transition: all 0.2s ease;
 }
 
 .nav-user:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(59, 130, 246, 0.3); /* Un brillo azul sutil */
-  transform: translateY(-1px); /* Efecto de elevación */
-}
-
-/* Estado activo: cuando estás en la página de perfil */
-.nav-user.active-user {
-  background: rgba(59, 130, 246, 0.08);
-  border-color: rgba(59, 130, 246, 0.4);
-}
-
-.nav-user.active-user .user-avatar {
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(59,130,246,0.25);
+  transform: translateY(-1px);
 }
 
 .user-avatar {
-  width: 36px; height: 36px;
-  border-radius: 10px;
+  width: 34px; height: 34px;
+  border-radius: 9px;
   background: linear-gradient(135deg, #3b82f6, #06b6d4);
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   color: white;
   flex-shrink: 0;
   position: relative;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.2s;
 }
 
+/* Punto verde de online */
 .user-avatar::after {
   content: '';
   position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 10px;
-  height: 10px;
+  bottom: -2px; right: -2px;
+  width: 9px; height: 9px;
   background: #22c55e;
   border: 2px solid #080f1e;
   border-radius: 50%;
+}
+
+/* Avatar activo cuando estás en /perfil */
+.user-avatar.avatar-active {
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.5);
 }
 
 .user-info {
@@ -293,30 +394,34 @@
 }
 
 .user-name {
-  font-size: 13px; font-weight: 600;
-  color: #f1f5f9;
+  font-size: 12.5px; font-weight: 600;
+  color: #e2e8f0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .user-email {
-  font-size: 11px;
-  color: #475569;
+  font-size: 10.5px;
+  color: #334155;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .logout-btn {
-  width: 30px; height: 30px;
+  width: 28px; height: 28px;
   display: flex; align-items: center; justify-content: center;
   background: transparent;
   border: none;
-  border-radius: 8px;
-  color: #334155;
+  border-radius: 7px;
+  color: #1e293b;
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
 }
-.logout-btn:hover { background: rgba(248,113,113,0.1); color: #f87171; }
+
+.logout-btn:hover {
+  background: rgba(248,113,113,0.1);
+  color: #f87171;
+}

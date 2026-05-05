@@ -1,9 +1,10 @@
 // navbar.component.ts
-import { Component, OnInit, OnDestroy, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { UsuarioService } from '../services/usuario.service';
+import { DashboardService } from '../services/dashboard.service';
 import { Subscription, filter } from 'rxjs';
 
 declare var anime: any;
@@ -17,62 +18,55 @@ declare var anime: any;
 })
 export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  // Estado del usuario
-  usuario: any = null;
-  tipoUsuario = 'HOGAR'; // HOGAR | EMPRESA | ADMIN
+  usuario:    any    = null;
+  tipoUsuario = 'HOGAR';
   planActual  = 'Básico';
   iniciales   = '';
+  menuLinks:  any[]  = [];
 
-  menuLinks: any[] = [];
+  // Eco-score — hace que la app se sienta viva
+  ecoScore = 0;
+  private empresaId = 0;
 
-  // UI
-  collapsed   = false;
-  rutaActual  = '';
+  collapsed  = false;
+  rutaActual = '';
   private subs: Subscription[] = [];
 
-  // Links según tipo de usuario
-
+  // 🔥 FIX: rutas corregidas /mis-sensores → /sensores
   private get linksAdmin() {
     return [
-      { path: '/admin',      icon: 'admin',   label: 'Control Total' },
-      { path: '/company',    icon: 'grid',    label: 'Vista Empresa' },
-      { path: '/mis-sensores',   icon: 'sensor',  label: 'Sensores' },
+      { path: '/admin',        icon: 'admin',  label: 'Control Total' },
+      { path: '/company',      icon: 'grid',   label: 'Vista Empresa' },
+      { path: '/sensores',     icon: 'sensor', label: 'Sensores' },
     ];
   }
 
-  get linksHogar() {
+  private get linksEmpresa() {
     return [
-      { path: '/home',       icon: 'grid',    label: 'Dashboard' },
-      { path: '/mis-sensores',   icon: 'sensor',  label: 'Mis sensores' },
-      { path: '/predicciones', icon: 'ia',    label: 'Predicciones IA', pro: true },
-      { path: '/suscripcion', icon: 'plan',   label: 'Mi plan' },
+      { path: '/company',      icon: 'grid',   label: 'Dashboard' },
+      { path: '/mis-sensores',     icon: 'sensor', label: 'Sensores' },
+      { path: '/predicciones', icon: 'ia',     label: 'Predicciones IA', pro: true },
+      { path: '/suscripcion',  icon: 'plan',   label: 'Mi plan' },
     ];
   }
 
-  get linksEmpresa() {
+  private get linksHogar() {
     return [
-      { path: '/company',    icon: 'grid',    label: 'Dashboard' },
-      { path: '/mis-sensores',   icon: 'sensor',  label: 'Sensores' },
-      { path: '/predicciones', icon: 'ia',   label: 'Predicciones IA', pro: true },
-      { path: '/suscripcion', icon: 'plan',  label: 'Mi plan' },
+      { path: '/home',         icon: 'grid',   label: 'Dashboard' },
+      { path: '/mis-sensores',     icon: 'sensor', label: 'Mis sensores' },
+      { path: '/predicciones', icon: 'ia',     label: 'Predicciones IA', pro: true },
+      { path: '/suscripcion',  icon: 'plan',   label: 'Mi plan' },
     ];
-  }
-
-
-  get links() {
-      if (this.usuario?.rol === 'ADMIN') return this.linksAdmin;
-     if (this.tipoUsuario === 'EMPRESA') return this.linksEmpresa;
-    return this.linksHogar;
   }
 
   constructor(
-    private router: Router,
-    public auth: AuthService,
-    private usuarioService: UsuarioService
+    private router:           Router,
+    public  auth:             AuthService,
+    private usuarioService:   UsuarioService,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit(): void {
-    // escuchar cambios de ruta
     this.subs.push(
       this.router.events.pipe(
         filter(e => e instanceof NavigationEnd)
@@ -83,30 +77,60 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.rutaActual = this.router.url;
 
-    // cargar perfil
     this.subs.push(
       this.usuarioService.usuarioActual$.subscribe(u => {
         if (u) {
-          this.usuario    = u;
+          this.usuario     = u;
           this.tipoUsuario = u.tipoUsuario ?? 'HOGAR';
-
-          this.planActual = (u as any).planNombre ?? 'Básico';
+          this.planActual  = (u as any).planNombre ?? 'Básico';
           this.iniciales   = this.getIniciales(u.nombre);
-         this.definirLinks();
+          this.empresaId   = (u as any).empresaId ?? 0;
+          this.definirLinks();
+
+          // Cargar eco-score una vez que sabemos el empresaId
+          if (this.empresaId) {
+            this.cargarEcoScore();
+          }
         }
       })
     );
+
     this.usuarioService.getPerfil().subscribe();
   }
 
   private definirLinks() {
-
-    const esAdminSistema = this.usuario?.rol === 'ADMIN';
+    // Admin sistema: rol ADMIN sin tipoUsuario (no pertenece a ninguna empresa)
+    const esAdminSistema = this.usuario?.rol === 'ADMIN' && !this.usuario?.tipoUsuario;
     if (esAdminSistema) {
       this.menuLinks = this.linksAdmin;
-    } 
-  else if (this.tipoUsuario === 'EMPRESA') this.menuLinks = this.linksEmpresa;
-  else this.menuLinks = this.linksHogar;
+    } else if (this.tipoUsuario === 'EMPRESA') {
+      this.menuLinks = this.linksEmpresa;
+    } else {
+      this.menuLinks = this.linksHogar;
+    }
+  }
+
+  private cargarEcoScore() {
+    this.dashboardService.getDashboardEmpresa(this.empresaId).subscribe({
+      next: (data: any) => {
+        this.ecoScore = data.ecoScore ?? 0;
+      },
+      error: () => { /* silencioso — el eco-score es decorativo */ }
+    });
+  }
+
+  // Clase CSS según el valor del eco-score
+  get ecoStripClass(): string {
+    if (this.ecoScore >= 75) return 'eco-bueno';
+    if (this.ecoScore >= 50) return 'eco-medio';
+    return 'eco-malo';
+  }
+
+  // Emoji según estado
+  get ecoIcon(): string {
+    if (this.ecoScore >= 75) return '🌿';
+    if (this.ecoScore >= 50) return '⚠️';
+    return '🔴';
   }
 
   ngAfterViewInit(): void {
@@ -119,53 +143,40 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private animarEntrada() {
     if (typeof anime === 'undefined') return;
-
     anime({
       targets: '.nav-sidebar',
-      translateX: [-240, 0],
-      opacity:    [0, 1],
-      duration:   600,
-      easing:     'easeOutExpo'
+      translateX: [-240, 0], opacity: [0, 1],
+      duration: 600, easing: 'easeOutExpo'
     });
-
     anime({
       targets: '.nav-link-item',
-      translateX: [-20, 0],
-      opacity:    [0, 1],
-      duration:   500,
-      delay:      anime.stagger(60, { start: 200 }),
-      easing:     'easeOutExpo'
+      translateX: [-16, 0], opacity: [0, 1],
+      duration: 450, delay: anime.stagger(55, { start: 150 }),
+      easing: 'easeOutExpo'
+    });
+    anime({
+      targets: '.eco-strip',
+      translateY: [10, 0], opacity: [0, 1],
+      duration: 400, delay: 500, easing: 'easeOutExpo'
     });
   }
 
-  irAlPerfil() {
-  this.router.navigate(['/perfil']);
-}
+  irAlPerfil() { this.router.navigate(['/perfil']); }
 
-// Para evitar que al hacer clic en Logout también se intente ir al perfil
-stopProp(event: Event) {
-  event.stopPropagation();
-}
-
+  stopProp(event: Event) { event.stopPropagation(); }
 
   toggleCollapse() {
     this.collapsed = !this.collapsed;
-
     if (typeof anime !== 'undefined') {
       anime({
         targets: '.nav-sidebar',
-        width:   this.collapsed ? [240, 68] : [68, 240],
-        duration: 300,
-        easing:   'easeOutCubic'
+        width: this.collapsed ? [240, 68] : [68, 240],
+        duration: 300, easing: 'easeOutCubic'
       });
-
       if (!this.collapsed) {
         anime({
-          targets: '.nav-label, .nav-logo-text, .user-info, .plan-badge',
-          opacity:  [0, 1],
-          duration: 200,
-          delay:    150,
-          easing:   'easeOutCubic'
+          targets: '.nav-label, .nav-logo-text, .user-info, .plan-badge, .eco-info',
+          opacity: [0, 1], duration: 200, delay: 150, easing: 'easeOutCubic'
         });
       }
     }
@@ -178,9 +189,8 @@ stopProp(event: Event) {
 
   getIniciales(nombre: string): string {
     if (!nombre) return 'U';
-    const partes = nombre.trim().split(' ');
-    if (partes.length >= 2) return (partes[0][0] + partes[1][0]).toUpperCase();
-    return partes[0][0].toUpperCase();
+    const p = nombre.trim().split(' ');
+    return p.length >= 2 ? (p[0][0] + p[1][0]).toUpperCase() : p[0][0].toUpperCase();
   }
 
   esPlanBloqueado(link: any): boolean {
