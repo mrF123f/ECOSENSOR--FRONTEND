@@ -24,7 +24,7 @@ export class AppComponent implements OnInit {
   private usuarioService = inject(UsuarioService);
 
   usuario: any;
-  title = 'ecosensor-frontend';
+  title = 'zentiot-frontend';
 
     backendCargando = true;
   mensajeWarmup   = 'Iniciando servidor...';
@@ -63,7 +63,7 @@ export class AppComponent implements OnInit {
       0:  'Iniciando servidor...',
       1:  'Despertando el servidor...',
       2:  'El servidor estaba en reposo, un momento...',
-      4:  'Cargando servicios de EcoSensor...',
+      4:  'Cargando servicios de Zentiot...',
       6:  'Esto puede tardar hasta 60 segundos la primera vez...',
       10: 'Casi listo, el servidor está iniciando...',
       14: 'Gracias por tu paciencia, ya casi...',

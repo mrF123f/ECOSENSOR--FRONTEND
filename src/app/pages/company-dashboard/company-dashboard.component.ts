@@ -284,7 +284,7 @@ cargarTodo() {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Reporte_EcoSensor_${new Date().toLocaleDateString('es-PE')}.pdf`;
+      link.download = `Reporte_Zentiot_${new Date().toLocaleDateString('es-PE')}.pdf`;
       link.click();
       window.URL.revokeObjectURL(url); // Limpiamos memoria
     },

@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'ecosensor-frontend' title`, () => {
+  it(`should have the 'zentiot-frontend' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('ecosensor-frontend');
+    expect(app.title).toEqual('zentiot-frontend');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, ecosensor-frontend');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, zentiot-frontend');
   });
 });
