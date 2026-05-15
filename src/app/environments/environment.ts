@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://iot-backend-4ug1.onrender.com',
-  wsUrl: 'wss://iot-backend-4ug1.onrender.com/ws'
+  apiUrl: 'https://iot-backend-bmiv.onrender.com',
+  wsUrl: 'wss://iot-backend-bmiv.onrender.com/ws'
 };
