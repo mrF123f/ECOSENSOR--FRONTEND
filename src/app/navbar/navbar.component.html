@@ -3,23 +3,17 @@
 
   <!-- LOGO -->
    <div class="nav-logo" (click)="toggleCollapse()">
-    <div class="logo-icon">
- <img *ngIf="!collapsed"
+     <!-- Logo completo expandido -->
+    <img *ngIf="!collapsed"
          src="Zentiot_Logo_Original.png"
          alt="Zentiot"
-         class="img-icon-only">
-        
+         class="logo-img-full">
  
-    <!-- Solo ícono (la Z) cuando está colapsado -->
+    <!-- Solo icono colapsado -->
     <img *ngIf="collapsed"
          src="Zentiot_Logo_Original.png"
          alt="Zentiot"
-         class="img-full">
-      </div>
- 
-      <div class="nav-logo-text" *ngIf="!collapsed">
-      Zentiot
-    </div>
+         class="logo-img-collapsed">
 
     <div class="collapse-btn" *ngIf="!collapsed">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

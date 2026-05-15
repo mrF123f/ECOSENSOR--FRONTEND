@@ -72,7 +72,6 @@
 
 .warmup-logo {
   width: 56px; height: 56px;
-  background: linear-gradient(135deg, #3b82f6, #06b6d4);
   border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
   animation: pulse-logo 2s ease-in-out infinite;

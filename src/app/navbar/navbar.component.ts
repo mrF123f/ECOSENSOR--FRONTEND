@@ -32,7 +32,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   rutaActual = '';
   private subs: Subscription[] = [];
 
-  // 🔥 FIX: rutas corregidas /mis-sensores → /sensores
+
   private get linksAdmin() {
     return [
       { path: '/admin',        icon: 'admin',  label: 'Control Total' },
@@ -99,16 +99,19 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private definirLinks() {
-    // Admin sistema: rol ADMIN sin tipoUsuario (no pertenece a ninguna empresa)
-    const esAdminSistema = this.usuario?.rol === 'ADMIN' && !this.usuario?.tipoUsuario;
-    if (esAdminSistema) {
-      this.menuLinks = this.linksAdmin;
-    } else if (this.tipoUsuario === 'EMPRESA') {
-      this.menuLinks = this.linksEmpresa;
-    } else {
-      this.menuLinks = this.linksHogar;
-    }
+ // 1. Si el rol es ADMIN, mandamos los links de Admin de frente
+  if (this.usuario?.rol === 'ADMIN') {
+    this.menuLinks = this.linksAdmin;
+    return; // Salimos de la función
   }
+
+  // 2. Si no es admin, evaluamos si es Empresa u Hogar
+  if (this.tipoUsuario === 'EMPRESA') {
+    this.menuLinks = this.linksEmpresa;
+  } else {
+    this.menuLinks = this.linksHogar;
+  }
+}
 
   private cargarEcoScore() {
     this.dashboardService.getDashboardEmpresa(this.empresaId).subscribe({

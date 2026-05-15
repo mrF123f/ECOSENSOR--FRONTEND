@@ -30,8 +30,7 @@
 }
 
 .nav-logo {
-  width: 34px; height: 34px;
-  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  width: 36px; height: 36px;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
 }

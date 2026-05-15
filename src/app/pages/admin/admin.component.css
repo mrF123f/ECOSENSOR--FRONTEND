@@ -19,9 +19,13 @@
 
 .admin-logo {
   width: 42px; height: 42px;
-  background: linear-gradient(135deg, #7c3aed, #4f46e5);
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
+}
+.admin-logo img {
+    width: 38px !important; 
+    height: 38px !important;
+    object-fit: contain;
 }
 
 .admin-title {
