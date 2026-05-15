@@ -18,7 +18,7 @@ export const appConfig: ApplicationConfig = {
 
     //AUTH0 CONFIG
     provideAuth0({
-      domain: 'dev-6u1q0s2nx3pub4do.us.auth0.com',
+      domain: 'dev-khvop4d61s5ip8d3.us.auth0.com',
       clientId: '6E6cqN5AhiK1oIEWD8p1FUlqrYc4TyX4',
 
       authorizationParams: {

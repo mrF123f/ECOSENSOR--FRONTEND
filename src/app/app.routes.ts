@@ -1,9 +1,5 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
-import { CompanyDashboardComponent } from './pages/company-dashboard/company-dashboard.component';
-import { SensorListComponent } from './sensor/sensor-list.component';
-import { SensorFormComponent } from './sensor/sensor-form.component';
-import { CompletarPerfilComponent } from './pages/completar-perfil/completar-perfil.component';
 import { adminGuard } from './guards/admin.guard';
 import { planGuard } from './guards/plan.guard';
 
