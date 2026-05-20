@@ -19,7 +19,7 @@ export const appConfig: ApplicationConfig = {
     //AUTH0 CONFIG
     provideAuth0({
       domain: 'dev-khvop4d61s5ip8d3.us.auth0.com',
-      clientId: '6E6cqN5AhiK1oIEWD8p1FUlqrYc4TyX4',
+      clientId: 'TGa8Wkq9JDBkcgYOzMIZbOZ2LVzrpI94',
 
       authorizationParams: {
         redirect_uri: window.location.origin,
