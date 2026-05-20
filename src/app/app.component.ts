@@ -113,9 +113,15 @@ export class AppComponent implements OnInit {
  
 
   // LOGIN CON REDIRECCIÓN 
-  login() {
-    this.auth.loginWithRedirect();
-  }
+ login() {
+  this.auth.loginWithRedirect({
+    authorizationParams: {
+      screen_hint: 'signup',   // 1. Obliga a Auth0 a abrir la pestaña de "Registrarse"
+      prompt: 'login'          // 2. Ignora cualquier sesión vieja para que no entre en automático
+    }
+
+    });
+}
 
    logout() {
     this.usuarioService.logout();
