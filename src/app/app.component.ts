@@ -45,12 +45,14 @@ export class AppComponent implements OnInit {
   this.mostrarNavbar = !this.rutasSinNavbar.includes(window.location.pathname);
       this.calentarBackend(0);
 
-    this.auth.isAuthenticated$.subscribe(isAuthenticated => {
-    if (isAuthenticated) {
-      // Si el usuario acaba de entrar (está en la raíz), lo mandamos a su perfil
-      if (isAuthenticated && window.location.pathname === '/') {
-        this.redirigirSegunPerfil();
-      }
+    this.auth.isLoading$.subscribe(loading => {
+    if (!loading) {
+      this.auth.isAuthenticated$.subscribe(isAuth => {
+        if (isAuth && window.location.pathname === '/') {
+          this.redirigirSegunPerfil();
+        }
+      });
+    
     }
   });
 
@@ -114,13 +116,17 @@ export class AppComponent implements OnInit {
 
   // LOGIN CON REDIRECCIÓN 
  login() {
+  console.log('🔑 Iniciando loginWithRedirect...');
+
   this.auth.loginWithRedirect({
     authorizationParams: {
-      screen_hint: 'signup',   // 1. Obliga a Auth0 a abrir la pestaña de "Registrarse"
-      prompt: 'login'          // 2. Ignora cualquier sesión vieja para que no entre en automático
+      screen_hint: 'signup',
+      prompt: 'login'
+    },
+    appState: { 
+      target: '/'   // El SDK usará esto después del callback
     }
-
-    });
+  });
 }
 
    logout() {

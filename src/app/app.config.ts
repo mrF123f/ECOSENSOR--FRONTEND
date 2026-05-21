@@ -22,13 +22,14 @@ export const appConfig: ApplicationConfig = {
       clientId: 'TGa8Wkq9JDBkcgYOzMIZbOZ2LVzrpI94',
 
       authorizationParams: {
-        redirect_uri: window.location.origin,
+        redirect_uri:`${window.location.origin}/callback`,
         audience: 'https://ecosensor-api',
         scope: 'openid profile email'
         
       },
 
-      cacheLocation: 'memory',
+      cacheLocation: 'localstorage',     // Recomendado
+    useRefreshTokens: true
 
     }),
 

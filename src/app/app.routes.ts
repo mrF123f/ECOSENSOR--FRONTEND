@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { planGuard } from './guards/plan.guard';
-
+import { CallbackComponent } from './callback/callback.component';
 
 
 
@@ -13,7 +13,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/landing/landing.component')
       .then(m => m.LandingComponent)
   },
-
+{
+    path: 'callback',
+    component: CallbackComponent   // No usar lazy loading aquí
+  },
  
   {
     path:'home',
