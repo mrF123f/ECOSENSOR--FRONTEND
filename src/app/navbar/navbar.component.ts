@@ -78,6 +78,15 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     this.rutaActual = this.router.url;
 
     this.subs.push(
+      this.auth.isAuthenticated$.subscribe(isAuth => {
+        if (isAuth) {
+          this.usuarioService.getPerfil().subscribe();
+        }
+      })
+    );
+
+
+    this.subs.push(
       this.usuarioService.usuarioActual$.subscribe(u => {
         if (u) {
           this.usuario     = u;
@@ -95,7 +104,6 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
       })
     );
 
-    this.usuarioService.getPerfil().subscribe();
   }
 
   private definirLinks() {

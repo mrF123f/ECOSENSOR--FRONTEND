@@ -24,12 +24,13 @@ export const appConfig: ApplicationConfig = {
       authorizationParams: {
         redirect_uri:`${window.location.origin}/callback`,
         audience: 'https://ecosensor-api',
-        scope: 'openid profile email offline_access'
+        scope: 'openid profile email'
         
       },
 
       cacheLocation: 'localstorage',     // Recomendado
-    useRefreshTokens: true
+    useRefreshTokens: false,               // ← DESACTIVADO
+  useRefreshTokensFallback: false,
 
     }),
 
@@ -37,23 +38,36 @@ export const appConfig: ApplicationConfig = {
  provideHttpClient(withInterceptors([
       (req, next) => {
 
-        if (!req.url.startsWith(environment.apiUrl)) return next(req);
+        if (!req.url.startsWith(environment.apiUrl)){
+          return next(req);
+        }
         const auth = inject(AuthService);
 
-        return auth.getAccessTokenSilently().pipe(
-          catchError(() => of(null)),
-          switchMap(token => {
-            if (token) {
-                req = req.clone({
-              headers: req.headers.set('Authorization', `Bearer ${token}`)
-            });
-          }
-            return next(req);
-          })
+        return auth.isAuthenticated$.pipe(
+          switchMap(isAuth => {
+            if (!isAuth) {
+              return next(req); // No intentar token si no está logueado
+            }
+            return auth.getAccessTokenSilently().pipe(
+              switchMap(token => {
+                if (token) {
+                  const clonedReq = req.clone({
+                    headers: req.headers.set('Authorization', `Bearer ${token}`)
+                  });
+                  return next(clonedReq);
+                }
+                return next(req);
+              }),
+              catchError(() => {
+                console.warn('⚠️ No token disponible');
+                return next(req);
+              })
+              );
+      })
         );
       }  
     ])),
-
+  
     provideAnimations()
   ]
 
