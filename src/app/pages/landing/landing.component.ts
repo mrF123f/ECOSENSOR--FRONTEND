@@ -36,9 +36,15 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
 
 login() {
 
+  console.log('🔑 Iniciando login...');
+
   this.auth.loginWithRedirect({
+    authorizationParams: {
+      screen_hint: 'signup',   // o quítalo si prefieres solo login
+      prompt: 'login'
+    },
     appState: { 
-      target: '/completar-perfil'
+      target: '/completar-perfil'   // ← Esto es bueno
     }
   });
 } 

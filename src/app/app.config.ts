@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
       authorizationParams: {
         redirect_uri:`${window.location.origin}/callback`,
         audience: 'https://ecosensor-api',
-        scope: 'openid profile email'
+        scope: 'openid profile email offline_access'
         
       },
 
