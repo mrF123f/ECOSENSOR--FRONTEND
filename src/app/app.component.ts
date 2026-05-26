@@ -109,7 +109,10 @@ export class AppComponent implements OnInit {
           this.router.navigate(['/home']);
         }
       },
-      error: () => this.router.navigate(['/completar-perfil'])
+      error: (err) => {
+        console.warn('No se pudo obtener perfil, redirigiendo a completar-perfil', err);
+        this.router.navigate(['/completar-perfil']);
+      }
     });
   }
  
@@ -120,11 +123,12 @@ export class AppComponent implements OnInit {
 
   this.auth.loginWithRedirect({
     authorizationParams: {
-      screen_hint: 'signup',
-      prompt: 'login'
+      prompt: 'login',
+      response_type: 'code'
+     
     },
     appState: { 
-      target: '/'   // El SDK usará esto después del callback
+      target: '/completar-perfil'   // El SDK usará esto después del callback
     }
   });
 }
