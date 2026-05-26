@@ -36,12 +36,16 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
 
 login() {
 
+  const redirectUri = `${window.location.origin}/callback`;
   console.log('🔑 Iniciando login...');
+  console.log('Redirect URI usado:', redirectUri);
+  console.log('Origin:', window.location.origin);
 
   this.auth.loginWithRedirect({
     authorizationParams: {
-      screen_hint: 'signup',   // o quítalo si prefieres solo login
-      prompt: 'login'
+     redirect_uri: redirectUri, 
+      prompt: 'login',
+      screen_hint: 'signup'
     },
     appState: { 
       target: '/completar-perfil'   // ← Esto es bueno
