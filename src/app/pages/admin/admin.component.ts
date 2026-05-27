@@ -5,7 +5,8 @@ import { RouterModule } from '@angular/router';
 import { HttpClient,HttpHeaders  } from '@angular/common/http';
 import { AuthService } from '@auth0/auth0-angular';
 import { switchMap } from 'rxjs/operators';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 
@@ -62,36 +63,32 @@ cargarTodo() {
 
   this.auth.getAccessTokenSilently().pipe(
     switchMap(token => {
-      console.log('🔑 Token obtenido correctamente');
+      console.log('🔑 Token obtenido');
 
-      const headers = { 
-        headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) 
-      };
+      const headers = { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
+      const base = this.base;
 
-      console.log('📡 Haciendo peticiones al backend...');
-
+      // Hacemos las peticiones una por una para ver cuál falla
       return forkJoin({
-        kpis:          this.http.get(`${this.base}/kpis`, headers),
-        usuarios:      this.http.get(`${this.base}/usuarios`, headers),
-        empresas:      this.http.get(`${this.base}/empresas`, headers),
-        suscripciones: this.http.get(`${this.base}/suscripciones`, headers),
-        alertas:       this.http.get(`${this.base}/alertas`, headers),
+        kpis: this.http.get(`${base}/kpis`, headers).pipe(catchError(err => { console.error('❌ Error en /kpis', err); return of(null); })),
+        usuarios: this.http.get(`${base}/usuarios`, headers).pipe(catchError(err => { console.error('❌ Error en /usuarios', err); return of([]); })),
+        empresas: this.http.get(`${base}/empresas`, headers).pipe(catchError(err => { console.error('❌ Error en /empresas', err); return of([]); })),
+        suscripciones: this.http.get(`${base}/suscripciones`, headers).pipe(catchError(err => { console.error('❌ Error en /suscripciones', err); return of([]); })),
+        alertas: this.http.get(`${base}/alertas`, headers).pipe(catchError(err => { console.error('❌ Error en /alertas', err); return of([]); })),
       });
     })
   ).subscribe({
     next: (res: any) => {
-      console.log('✅ ¡TODO CARGADO CORRECTAMENTE!', res);
-      
-      this.kpis          = res.kpis || {};
-      this.usuarios      = res.usuarios || [];
-      this.empresas      = res.empresas || [];
+      console.log('✅ Datos recibidos:', res);
+      this.kpis = res.kpis || {};
+      this.usuarios = res.usuarios || [];
+      this.empresas = res.empresas || [];
       this.suscripciones = res.suscripciones || [];
-      this.alertas       = res.alertas || [];
-      
+      this.alertas = res.alertas || [];
       this.cargando = false;
     },
-    error: (err: any) => {
-      console.error('💥 ERROR AL CARGAR DATOS DEL ADMIN:', err);
+    error: (err) => {
+      console.error('💥 Error general:', err);
       this.cargando = false;
     }
   });
