@@ -59,30 +59,46 @@ export class AdminComponent implements OnInit, AfterViewInit {
 
 cargarTodo() {
   this.cargando = true;
-  console.log('🚀 Iniciando carga ADMIN...');
+  console.log('🚀 Iniciando carga completa de ADMIN...');
 
   this.auth.getAccessTokenSilently().pipe(
     switchMap(token => {
-      console.log('🔑 Token OK');
+      console.log('🔑 Token obtenido');
 
       const headers = { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
 
-      // Probamos SOLO una petición primero (la más importante)
-      return this.http.get(`${this.base}/kpis`, headers).pipe(
-        catchError(err => {
-          console.error('❌ Error en /kpis:', err);
-          return of(null);
-        })
-      );
+      return forkJoin({
+        kpis: this.http.get(`${this.base}/kpis`, headers).pipe(
+          catchError(err => { console.error('❌ /kpis:', err); return of({}); })
+        ),
+        usuarios: this.http.get(`${this.base}/usuarios`, headers).pipe(
+          catchError(err => { console.error('❌ /usuarios:', err); return of([]); })
+        ),
+        empresas: this.http.get(`${this.base}/empresas`, headers).pipe(
+          catchError(err => { console.error('❌ /empresas:', err); return of([]); })
+        ),
+        suscripciones: this.http.get(`${this.base}/suscripciones`, headers).pipe(
+          catchError(err => { console.error('❌ /suscripciones:', err); return of([]); })
+        ),
+        alertas: this.http.get(`${this.base}/alertas`, headers).pipe(
+          catchError(err => { console.error('❌ /alertas:', err); return of([]); })
+        )
+      });
     })
   ).subscribe({
-    next: (data) => {
-      console.log('✅ Respuesta de /kpis:', data);
-      this.kpis = data || {};
+    next: (res: any) => {
+      console.log('✅ Carga completa exitosa', res);
+
+      this.kpis          = res.kpis || {};
+      this.usuarios      = res.usuarios || [];
+      this.empresas      = res.empresas || [];
+      this.suscripciones = res.suscripciones || [];
+      this.alertas       = res.alertas || [];
+
       this.cargando = false;
     },
-    error: (err) => {
-      console.error('💥 Error general:', err);
+    error: (err: any) => {
+      console.error('💥 Error general en carga:', err);
       this.cargando = false;
     }
   });
