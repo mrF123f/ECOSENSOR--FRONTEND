@@ -56,31 +56,31 @@ export class AdminComponent implements OnInit, AfterViewInit {
     anime({ targets: '.mrr-strip',     translateY: [20, 0],  opacity: [0, 1], duration: 600, delay: 400, easing: 'easeOutExpo' });
   }
 
-
- cargarTodo() {
+cargarTodo() {
   this.cargando = true;
-  console.log(' Iniciando carga de datos ADMIN...');
+  console.log('🚀 Iniciando carga de datos ADMIN...');
 
   this.auth.getAccessTokenSilently().pipe(
     switchMap(token => {
-      console.log('🔑 Token obtenido, llamando al backend...');
+      console.log('🔑 Token obtenido correctamente');
+
       const headers = { 
-        headers: new HttpHeaders({ 
-          Authorization: `Bearer ${token}` 
-        }) 
+        headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) 
       };
 
+      console.log('📡 Haciendo peticiones al backend...');
+
       return forkJoin({
-        kpis:          this.http.get<any>(`${this.base}/kpis`, headers),
-        usuarios:      this.http.get<any[]>(`${this.base}/usuarios`, headers),
-        empresas:      this.http.get<any[]>(`${this.base}/empresas`, headers),
-        suscripciones: this.http.get<any[]>(`${this.base}/suscripciones`, headers),
-        alertas:       this.http.get<any[]>(`${this.base}/alertas`, headers),
+        kpis:          this.http.get(`${this.base}/kpis`, headers),
+        usuarios:      this.http.get(`${this.base}/usuarios`, headers),
+        empresas:      this.http.get(`${this.base}/empresas`, headers),
+        suscripciones: this.http.get(`${this.base}/suscripciones`, headers),
+        alertas:       this.http.get(`${this.base}/alertas`, headers),
       });
     })
   ).subscribe({
     next: (res: any) => {
-      console.log('✅ Datos cargados exitosamente', res);
+      console.log('✅ ¡TODO CARGADO CORRECTAMENTE!', res);
       
       this.kpis          = res.kpis || {};
       this.usuarios      = res.usuarios || [];
@@ -91,7 +91,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
       this.cargando = false;
     },
     error: (err: any) => {
-      console.error('💥 ERROR AL CARGAR PANEL DE ADMINISTRACIÓN:', err);
+      console.error('💥 ERROR AL CARGAR DATOS DEL ADMIN:', err);
       this.cargando = false;
     }
   });
