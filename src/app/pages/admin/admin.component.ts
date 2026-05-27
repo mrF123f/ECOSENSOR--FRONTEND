@@ -59,32 +59,26 @@ export class AdminComponent implements OnInit, AfterViewInit {
 
 cargarTodo() {
   this.cargando = true;
-  console.log('🚀 Iniciando carga de datos ADMIN...');
+  console.log('🚀 Iniciando carga ADMIN...');
 
   this.auth.getAccessTokenSilently().pipe(
     switchMap(token => {
-      console.log('🔑 Token obtenido');
+      console.log('🔑 Token OK');
 
       const headers = { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
-      const base = this.base;
 
-      // Hacemos las peticiones una por una para ver cuál falla
-      return forkJoin({
-        kpis: this.http.get(`${base}/kpis`, headers).pipe(catchError(err => { console.error('❌ Error en /kpis', err); return of(null); })),
-        usuarios: this.http.get(`${base}/usuarios`, headers).pipe(catchError(err => { console.error('❌ Error en /usuarios', err); return of([]); })),
-        empresas: this.http.get(`${base}/empresas`, headers).pipe(catchError(err => { console.error('❌ Error en /empresas', err); return of([]); })),
-        suscripciones: this.http.get(`${base}/suscripciones`, headers).pipe(catchError(err => { console.error('❌ Error en /suscripciones', err); return of([]); })),
-        alertas: this.http.get(`${base}/alertas`, headers).pipe(catchError(err => { console.error('❌ Error en /alertas', err); return of([]); })),
-      });
+      // Probamos SOLO una petición primero (la más importante)
+      return this.http.get(`${this.base}/kpis`, headers).pipe(
+        catchError(err => {
+          console.error('❌ Error en /kpis:', err);
+          return of(null);
+        })
+      );
     })
   ).subscribe({
-    next: (res: any) => {
-      console.log('✅ Datos recibidos:', res);
-      this.kpis = res.kpis || {};
-      this.usuarios = res.usuarios || [];
-      this.empresas = res.empresas || [];
-      this.suscripciones = res.suscripciones || [];
-      this.alertas = res.alertas || [];
+    next: (data) => {
+      console.log('✅ Respuesta de /kpis:', data);
+      this.kpis = data || {};
       this.cargando = false;
     },
     error: (err) => {
