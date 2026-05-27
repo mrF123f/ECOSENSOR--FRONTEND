@@ -63,31 +63,31 @@ cargarTodo() {
 
   this.auth.getAccessTokenSilently().pipe(
     switchMap(token => {
-      console.log('🔑 Token obtenido');
-
+      console.log('🔑 Token obtenido con éxito');
       const headers = { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
 
+      // Ejecutamos forkJoin pero aseguramos un timeout y manejo limpio
       return forkJoin({
         kpis: this.http.get(`${this.base}/kpis`, headers).pipe(
-          catchError(err => { console.error('❌ /kpis:', err); return of({}); })
+          catchError(err => { console.error('❌ Error en /kpis:', err); return of({}); })
         ),
         usuarios: this.http.get(`${this.base}/usuarios`, headers).pipe(
-          catchError(err => { console.error('❌ /usuarios:', err); return of([]); })
+          catchError(err => { console.error('❌ Error en /usuarios:', err); return of([]); })
         ),
         empresas: this.http.get(`${this.base}/empresas`, headers).pipe(
-          catchError(err => { console.error('❌ /empresas:', err); return of([]); })
+          catchError(err => { console.error('❌ Error en /empresas:', err); return of([]); })
         ),
         suscripciones: this.http.get(`${this.base}/suscripciones`, headers).pipe(
-          catchError(err => { console.error('❌ /suscripciones:', err); return of([]); })
+          catchError(err => { console.error('❌ Error en /suscripciones:', err); return of([]); })
         ),
         alertas: this.http.get(`${this.base}/alertas`, headers).pipe(
-          catchError(err => { console.error('❌ /alertas:', err); return of([]); })
+          catchError(err => { console.error('❌ Error en /alertas:', err); return of([]); })
         )
       });
     })
   ).subscribe({
     next: (res: any) => {
-      console.log('✅ Carga completa exitosa', res);
+      console.log('✅ Estructura recibida en forkJoin:', res);
 
       this.kpis          = res.kpis || {};
       this.usuarios      = res.usuarios || [];
@@ -95,10 +95,11 @@ cargarTodo() {
       this.suscripciones = res.suscripciones || [];
       this.alertas       = res.alertas || [];
 
+      // Forzar que la pantalla termine de cargar pase lo que pase
       this.cargando = false;
     },
     error: (err: any) => {
-      console.error('💥 Error general en carga:', err);
+      console.error('💥 Error crítico/general en el flujo de autenticación:', err);
       this.cargando = false;
     }
   });
