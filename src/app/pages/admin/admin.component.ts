@@ -56,36 +56,46 @@ export class AdminComponent implements OnInit, AfterViewInit {
     anime({ targets: '.mrr-strip',     translateY: [20, 0],  opacity: [0, 1], duration: 600, delay: 400, easing: 'easeOutExpo' });
   }
 
-  cargarTodo() {
-    this.cargando = true;
-     this.auth.getAccessTokenSilently().pipe(
-      switchMap(token => {
-        const h = { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
-        return forkJoin({
-          kpis:          this.http.get<any>   (`${this.base}/kpis`,          h),
-          usuarios:      this.http.get<any[]> (`${this.base}/usuarios`,      h),
-          empresas:      this.http.get<any[]> (`${this.base}/empresas`,      h),
-          suscripciones: this.http.get<any[]> (`${this.base}/suscripciones`, h),
-          alertas:       this.http.get<any[]> (`${this.base}/alertas`,       h),
-        });
-      })
-    ).subscribe({
-      next: (res:any) => {
-        this.kpis          = res.kpis;
-        this.usuarios      = res.usuarios;
-        this.empresas      = res.empresas;
-        this.suscripciones = res.suscripciones;
-        this.alertas       = res.alertas;
-        this.cargando      = false;
-        // Animar solo cuando todos los datos ya están
-        setTimeout(() => this.animarEntrada(), 50);
-      },
-      error: (err:any) => { 
-        console.error('❌ Error cargando alguna de las peticiones de administración:', err);
-        this.cargando = false;
-      }
-    });
-  }
+
+ cargarTodo() {
+  this.cargando = true;
+  console.log(' Iniciando carga de datos ADMIN...');
+
+  this.auth.getAccessTokenSilently().pipe(
+    switchMap(token => {
+      console.log('🔑 Token obtenido, llamando al backend...');
+      const headers = { 
+        headers: new HttpHeaders({ 
+          Authorization: `Bearer ${token}` 
+        }) 
+      };
+
+      return forkJoin({
+        kpis:          this.http.get<any>(`${this.base}/kpis`, headers),
+        usuarios:      this.http.get<any[]>(`${this.base}/usuarios`, headers),
+        empresas:      this.http.get<any[]>(`${this.base}/empresas`, headers),
+        suscripciones: this.http.get<any[]>(`${this.base}/suscripciones`, headers),
+        alertas:       this.http.get<any[]>(`${this.base}/alertas`, headers),
+      });
+    })
+  ).subscribe({
+    next: (res: any) => {
+      console.log('✅ Datos cargados exitosamente', res);
+      
+      this.kpis          = res.kpis || {};
+      this.usuarios      = res.usuarios || [];
+      this.empresas      = res.empresas || [];
+      this.suscripciones = res.suscripciones || [];
+      this.alertas       = res.alertas || [];
+      
+      this.cargando = false;
+    },
+    error: (err: any) => {
+      console.error('💥 ERROR AL CARGAR PANEL DE ADMINISTRACIÓN:', err);
+      this.cargando = false;
+    }
+  });
+}
 
   //
     verUsuario(u: any) {
