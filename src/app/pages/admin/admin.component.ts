@@ -78,7 +78,10 @@ export class AdminComponent implements OnInit, AfterViewInit {
         // Animar solo cuando todos los datos ya están
         setTimeout(() => this.animarEntrada(), 50);
       },
-      error: () => { this.cargando = false; }
+      eerror: (err:any) => { 
+        console.error('❌ Error cargando alguna de las peticiones de administración:', err);
+        this.cargando = false;
+      }
     });
   }
 

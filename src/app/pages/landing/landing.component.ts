@@ -48,7 +48,7 @@ login() {
       screen_hint: 'signup'
     },
     appState: { 
-      target: '/completar-perfil'   // ← Esto es bueno
+      target: '/'
     }
   });
 } 
