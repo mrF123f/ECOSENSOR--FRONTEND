@@ -68,7 +68,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
         });
       })
     ).subscribe({
-      next: (res) => {
+      next: (res:any) => {
         this.kpis          = res.kpis;
         this.usuarios      = res.usuarios;
         this.empresas      = res.empresas;
@@ -78,7 +78,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
         // Animar solo cuando todos los datos ya están
         setTimeout(() => this.animarEntrada(), 50);
       },
-      eerror: (err:any) => { 
+      error: (err:any) => { 
         console.error('❌ Error cargando alguna de las peticiones de administración:', err);
         this.cargando = false;
       }
