@@ -119,9 +119,16 @@ cargarTodo() {
         this.planActual = user.planNombre || 'Básico';
 
         if (!this.empresaId) {
-          console.error("No se encontró empresaId en el perfil");
+          console.warn("⚠️ Advertencia: No se encontró empresaId en el perfil actual.");
+          this.totalSensores = 0;
+          this.sensoresActivos = 0;
+          this.estadoGeneral = 'SIN DATOS';
+          this.todosSensores = [];
+          this.zonas = [];
           this.cargando = false;
-          return;
+          this.cdr.detectChanges();
+          this.cargarAlertas(); // Intentamos cargar alertas generales si existen
+          return; 
         }
 
         // Ejecutamos las dos cargas principales en paralelo
@@ -144,13 +151,22 @@ cargarTodo() {
             this.agruparPorZona(res.sensores);
             this.cargando = false;
             
-            // 👈 Forzamos a Angular a ver los nuevos *ngIf antes de crear los gráficos
+            // Forzamos a Angular a ver los nuevos *ngIf antes de crear los gráficos
             this.cdr.detectChanges(); 
           },
-          error: () => this.cargando = false
+          error: (err) => {
+            console.error('Error cargando datos de empresa:', err);
+            this.cargando = false;
+            this.cdr.detectChanges();
+          }
         });
 
         this.cargarAlertas();
+      },
+      error: (err) => {
+        console.error('Error al obtener el perfil:', err);
+        this.cargando = false;
+        this.cdr.detectChanges();
       }
     });
   }

@@ -49,6 +49,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
 
   private animarEntrada() {
     if (typeof anime === 'undefined') return; 
+
+    
     anime({ targets: '.admin-header', translateY: [-30, 0], opacity: [0, 1], duration: 600, easing: 'easeOutExpo' });
     anime({ targets: '.kpi-card', translateY: [40, 0], opacity: [0, 1], duration: 700, delay: anime.stagger(80), easing: 'easeOutExpo' });
     anime({ targets: '.mrr-strip',     translateY: [20, 0],  opacity: [0, 1], duration: 600, delay: 400, easing: 'easeOutExpo' });

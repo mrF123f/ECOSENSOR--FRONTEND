@@ -11,32 +11,23 @@ export const adminGuard: CanActivateFn = (route, state) => {
 
   //Revisamos el usuario que tenemos en memoria
  return usuarioService.getPerfil().pipe(
-    // 2. Filtramos valores nulos para que no se cierre antes de tiempo
   
+    take(1),
     map(user => {
-      if (!user || !user.rol) {
-        router.navigate(['/login']);
+      if (!user) {
+        router.navigate(['/']);
         return false;
       }
 
+      const esAdminSistema = user.rol?.toUpperCase() === 'ADMIN';
 
-    const rolUpper = user.rol.toUpperCase();
-
-      // 3. Si es ADMIN del sistema (el que no tiene empresa asignada en la tabla)
-      if (rolUpper === 'ADMIN' && !user.empresaId) {
-        console.log('Bienvenido, Super Admin. Accediendo al panel de control global.');
+      if (esAdminSistema) {
+        console.log('✅ Acceso autorizado al panel Admin');
         return true;
       }
 
-      console.warn('Acceso denegado al panel global. Redirigiendo a vista de cliente...');
-
-      
-      if (user.empresaId) {
-        router.navigate(['/company']);
-      } else {
-        router.navigate(['/dashboard']);
-      }
-      
+      console.warn('⛔ Acceso denegado - No es ADMIN');
+      router.navigate(['/']);
       return false;
     }),
     catchError(() => {
