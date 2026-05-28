@@ -4,8 +4,8 @@ import { provideHttpClient, withInterceptors  } from '@angular/common/http';
 import { routes } from './app.routes';
 import { provideAuth0, AuthService } from '@auth0/auth0-angular';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { switchMap, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { switchMap, of,from } from 'rxjs';
+import { catchError,take } from 'rxjs/operators';
 import { environment } from './environments/environment';
 
 
@@ -43,30 +43,23 @@ export const appConfig: ApplicationConfig = {
         }
         const auth = inject(AuthService);
 
-        return auth.isAuthenticated$.pipe(
-          switchMap(isAuth => {
-            if (!isAuth) {
-              return next(req); // No intentar token si no está logueado
-            }
-            return auth.getAccessTokenSilently().pipe(
-              switchMap(token => {
-                if (token) {
-                  const clonedReq = req.clone({
-                    headers: req.headers.set('Authorization', `Bearer ${token}`)
-                  });
-                  return next(clonedReq);
-                }
-                return next(req);
-              }),
-              catchError(() => {
-                console.warn('⚠️ No token disponible');
-                return next(req);
-              })
-              );
-      })
+       return from(auth.getAccessTokenSilently()).pipe(
+          take(1),
+          switchMap(token => {
+            if (!token) return next(req);
+            return next(req.clone({
+              headers: req.headers.set('Authorization', `Bearer ${token}`)
+            }));
+          }),
+          catchError(() => {
+            // Sin token — dejar pasar sin header (endpoints públicos)
+            return next(req);
+          })
         );
-      }  
-    ])),
+      }
+ ])),
+      
+    
   
     provideAnimations()
   ]

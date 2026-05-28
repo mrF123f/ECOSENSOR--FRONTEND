@@ -5,8 +5,8 @@ import { RouterModule } from '@angular/router';
 import { HttpClient,HttpHeaders  } from '@angular/common/http';
 import { AuthService } from '@auth0/auth0-angular';
 import { switchMap } from 'rxjs/operators';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { forkJoin, of, timer } from 'rxjs';
+import { catchError, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 
@@ -42,7 +42,18 @@ export class AdminComponent implements OnInit, AfterViewInit {
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
-  ngOnInit(): void { this.cargarTodo(); }
+  ngOnInit(): void {
+    // Timeout de seguridad — si en 15s no cargó, quitar spinner igual
+    timer(15000).subscribe(() => {
+      if (this.cargando) {
+        console.warn('⏱️ Timeout de seguridad — quitando spinner');
+        this.cargando = false;
+      }
+    });
+
+  this.cargarTodo();
+
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => this.animarEntrada(), 300);
@@ -63,34 +74,39 @@ cargarTodo() {
   console.log('🚀 Iniciando carga completa de ADMIN directa y segura...');
 
   // El interceptor se encargará de inyectar el token automáticamente en cada GET
-  forkJoin({
-    kpis: this.http.get(`${this.base}/kpis`).pipe(
-      catchError(err => { console.error('❌ Error en /kpis:', err); return of({}); })
-    ),
-    usuarios: this.http.get(`${this.base}/usuarios`).pipe(
-      catchError(err => { console.error('❌ Error en /usuarios:', err); return of([]); })
-    ),
-    empresas: this.http.get(`${this.base}/empresas`).pipe(
-      catchError(err => { console.error('❌ Error en /empresas:', err); return of([]); })
-    ),
-    suscripciones: this.http.get(`${this.base}/suscripciones`).pipe(
-      catchError(err => { console.error('❌ Error en /suscripciones:', err); return of([]); })
-    ),
-    alertas: this.http.get(`${this.base}/alertas`).pipe(
-      catchError(err => { console.error('❌ Error en /alertas:', err); return of([]); })
-    )
+    forkJoin({
+      kpis:          this.http.get(`${this.base}/kpis`).pipe(
+                       timeout(10000),
+                       catchError(err => { console.error('❌ /kpis:', err.status ?? err.name); return of({}); })
+                     ),
+      usuarios:      this.http.get(`${this.base}/usuarios`).pipe(
+                       timeout(10000),
+                       catchError(err => { console.error('❌ /usuarios:', err.status ?? err.name); return of([]); })
+                     ),
+      empresas:      this.http.get(`${this.base}/empresas`).pipe(
+                       timeout(10000),
+                       catchError(err => { console.error('❌ /empresas:', err.status ?? err.name); return of([]); })
+                     ),
+      suscripciones: this.http.get(`${this.base}/suscripciones`).pipe(
+                       timeout(10000),
+                       catchError(err => { console.error('❌ /suscripciones:', err.status ?? err.name); return of([]); })
+                     ),
+      alertas:       this.http.get(`${this.base}/alertas`).pipe(
+                       timeout(10000),
+                       catchError(err => { console.error('❌ /alertas:', err.status ?? err.name); return of([]); })
+                     ),
   }).subscribe({
     next: (res: any) => {
-      console.log('✅ Estructura recibida con éxito en forkJoin:', res);
+      console.log('✅ Admin data cargada');
 
-      this.kpis          = res.kpis || {};
-      this.usuarios      = res.usuarios || [];
-      this.empresas      = res.empresas || [];
-      this.suscripciones = res.suscripciones || [];
-      this.alertas       = res.alertas || [];
+      this.kpis          = res.kpis          || {};
+        this.usuarios      = Array.isArray(res.usuarios)      ? res.usuarios      : [];
+        this.empresas      = Array.isArray(res.empresas)      ? res.empresas      : [];
+        this.suscripciones = Array.isArray(res.suscripciones) ? res.suscripciones : [];
+        this.alertas       = Array.isArray(res.alertas)       ? res.alertas       : [];
+        this.cargando      = false;
 
-      // Apagamos el spinner de inmediato
-      this.cargando = false;
+      setTimeout(() => this.animarEntrada(), 50);
     },
     error: (err: any) => {
       console.error('💥 Error crítico general en la carga de datos de administración:', err);
@@ -100,20 +116,19 @@ cargarTodo() {
 }
 
   //
-    verUsuario(u: any) {
-   this.cargandoVista = true;
-    this.http.get<any>(`${this.base}/usuarios/${u.id}/perfil-vista`).subscribe({
-      next: (data) => {
-        this.usuarioEnVista = data;
-        this.mostrandoVista = true;
+     verUsuario(u: any) {
+    this.cargandoVista = true;
+    this.http.get<any>(`${this.base}/usuarios/${u.id}/perfil-vista`)
+      .pipe(catchError(err => { console.error('❌ perfil-vista:', err); return of(null); }))
+      .subscribe(data => {
         this.cargandoVista  = false;
-      },
-      error: (err) => { 
-        console.error('❌ Error al obtener perfil vista:', err);
-        this.cargandoVista  = false; 
-      }
-    });
+        if (data) {
+          this.usuarioEnVista = data;
+          this.mostrandoVista = true;
+        }
+      });
   }
+ 
  
   cerrarVista() {
     this.usuarioEnVista = null;
@@ -128,17 +143,11 @@ cargarTodo() {
       ? `${this.base}/usuarios/${u.id}/desactivar`
       : `${this.base}/usuarios/${u.id}/activar`;
 
-    this.http.put(url, {}, { responseType: 'text' }).subscribe({
-      next: () => { 
-        u.activo = !u.activo; 
-        this.accionando = null; 
-      },
-      error: (err) => { 
-        console.error('❌ Error en toggleUsuario:', err);
-        this.accionando = null; 
-      }
-    });
+     this.http.put(url, {}, { responseType: 'text' })
+      .pipe(catchError(err => { console.error('❌ toggleUsuario:', err); return of(null); }))
+      .subscribe(() => { u.activo = !u.activo; this.accionando = null; });
   }
+ 
 
   // ── TOGGLE EMPRESA ────────────────────────────────────────────
   toggleEmpresa(e: any) {
@@ -148,17 +157,12 @@ cargarTodo() {
       ? `${this.base}/empresas/${e.id}/desactivar`
       : `${this.base}/empresas/${e.id}/activar`;
 
-    this.http.put(url, {}, { responseType: 'text' }).subscribe({
-      next: () => { 
-        e.activa = !e.activa; 
-        this.accionando = null; 
-      },
-      error: (err) => { 
-        console.error('❌ Error en toggleEmpresa:', err);
-        this.accionando = null; 
-      }
-    });
+     this.http.put(url, {}, { responseType: 'text' })
+      .pipe(catchError(err => { console.error('❌ toggleEmpresa:', err); return of(null); }))
+      .subscribe(() => { e.activa = !e.activa; this.accionando = null; });
   }
+
+
 
   // ── TOGGLE SUSCRIPCIÓN ────────────────────────────────────────
   toggleSuscripcion(s: any) {
@@ -168,19 +172,16 @@ cargarTodo() {
       ? `${this.base}/suscripciones/${s.id}/suspender`
       : `${this.base}/suscripciones/${s.id}/activar`;
 
-    this.http.put(url, {}, { responseType: 'text' }).subscribe({
-      next: () => {
+     this.http.put(url, {}, { responseType: 'text' })
+      .pipe(catchError(err => { console.error('❌ toggleSuscripcion:', err); return of(null); }))
+      .subscribe(() => {
         const eraActiva = s.estado === 'ACTIVA';
         s.estado     = eraActiva ? 'CANCELADA' : 'ACTIVA';
         s.estadoPago = eraActiva ? 'FALLIDO'   : 'PAGADO';
         this.accionando = null;
-      },
-      error: (err) => { 
-        console.error('❌ Error en toggleSuscripcion:', err);
-        this.accionando = null; 
-      }
-    });
+      });
   }
+  
 
   cambiarTab(tab: 'usuarios' | 'empresas' | 'suscripciones' | 'alertas') {
     this.tabActiva = tab;
