@@ -57,37 +57,31 @@ export class AdminComponent implements OnInit, AfterViewInit {
     anime({ targets: '.mrr-strip',     translateY: [20, 0],  opacity: [0, 1], duration: 600, delay: 400, easing: 'easeOutExpo' });
   }
 
+// En tu admin.component.ts reemplaza tu función actual por esta:
 cargarTodo() {
   this.cargando = true;
-  console.log('🚀 Iniciando carga completa de ADMIN...');
+  console.log('🚀 Iniciando carga completa de ADMIN directa y segura...');
 
-  this.auth.getAccessTokenSilently().pipe(
-    switchMap(token => {
-      console.log('🔑 Token obtenido con éxito');
-      const headers = { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
-
-      // Ejecutamos forkJoin pero aseguramos un timeout y manejo limpio
-      return forkJoin({
-        kpis: this.http.get(`${this.base}/kpis`, headers).pipe(
-          catchError(err => { console.error('❌ Error en /kpis:', err); return of({}); })
-        ),
-        usuarios: this.http.get(`${this.base}/usuarios`, headers).pipe(
-          catchError(err => { console.error('❌ Error en /usuarios:', err); return of([]); })
-        ),
-        empresas: this.http.get(`${this.base}/empresas`, headers).pipe(
-          catchError(err => { console.error('❌ Error en /empresas:', err); return of([]); })
-        ),
-        suscripciones: this.http.get(`${this.base}/suscripciones`, headers).pipe(
-          catchError(err => { console.error('❌ Error en /suscripciones:', err); return of([]); })
-        ),
-        alertas: this.http.get(`${this.base}/alertas`, headers).pipe(
-          catchError(err => { console.error('❌ Error en /alertas:', err); return of([]); })
-        )
-      });
-    })
-  ).subscribe({
+  // El interceptor se encargará de inyectar el token automáticamente en cada GET
+  forkJoin({
+    kpis: this.http.get(`${this.base}/kpis`).pipe(
+      catchError(err => { console.error('❌ Error en /kpis:', err); return of({}); })
+    ),
+    usuarios: this.http.get(`${this.base}/usuarios`).pipe(
+      catchError(err => { console.error('❌ Error en /usuarios:', err); return of([]); })
+    ),
+    empresas: this.http.get(`${this.base}/empresas`).pipe(
+      catchError(err => { console.error('❌ Error en /empresas:', err); return of([]); })
+    ),
+    suscripciones: this.http.get(`${this.base}/suscripciones`).pipe(
+      catchError(err => { console.error('❌ Error en /suscripciones:', err); return of([]); })
+    ),
+    alertas: this.http.get(`${this.base}/alertas`).pipe(
+      catchError(err => { console.error('❌ Error en /alertas:', err); return of([]); })
+    )
+  }).subscribe({
     next: (res: any) => {
-      console.log('✅ Estructura recibida en forkJoin:', res);
+      console.log('✅ Estructura recibida con éxito en forkJoin:', res);
 
       this.kpis          = res.kpis || {};
       this.usuarios      = res.usuarios || [];
@@ -95,11 +89,11 @@ cargarTodo() {
       this.suscripciones = res.suscripciones || [];
       this.alertas       = res.alertas || [];
 
-      // Forzar que la pantalla termine de cargar pase lo que pase
+      // Apagamos el spinner de inmediato
       this.cargando = false;
     },
     error: (err: any) => {
-      console.error('💥 Error crítico/general en el flujo de autenticación:', err);
+      console.error('💥 Error crítico general en la carga de datos de administración:', err);
       this.cargando = false;
     }
   });
