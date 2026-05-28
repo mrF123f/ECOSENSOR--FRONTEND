@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { mergeMap  } from 'rxjs/operators';
+import { mergeMap , take } from 'rxjs/operators';
 import { AuthService } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment'; 
 
@@ -20,12 +20,10 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     // getAccessTokenSilently devuelve Observable<string>
-    return this.auth.getAccessTokenSilently({
-      authorizationParams: {
-        scope: 'openid profile email' // <--- ESTO ES VITAL
-      }
-    }).pipe(
+    return this.auth.getAccessTokenSilently().pipe(
+      take(1), 
       mergeMap(token => {
+        console.log(`📡 Interceptor: Inyectando Token en petición -> ${req.url.replace(this.apiBase, '')}`);
         const cloned = req.clone({
           setHeaders: {
             Authorization: `Bearer ${token}`
