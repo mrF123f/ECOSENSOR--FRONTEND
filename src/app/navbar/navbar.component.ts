@@ -37,7 +37,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     return [
       { path: '/admin',        icon: 'admin',  label: 'Control Total' },
       { path: '/company',      icon: 'grid',   label: 'Vista Empresa' },
-      { path: '/sensores',     icon: 'sensor', label: 'Sensores' },
+      { path: '/mis-sensores',     icon: 'sensor', label: 'Sensores' },
     ];
   }
 
