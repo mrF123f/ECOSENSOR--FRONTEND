@@ -101,19 +101,17 @@ cargarTodo() {
 
   //
     verUsuario(u: any) {
-    this.cargandoVista = true;
-    this.auth.getAccessTokenSilently().pipe(
-      switchMap(token => this.http.get<any>(
-        `${this.base}/usuarios/${u.id}/perfil-vista`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      ))
-    ).subscribe({
+   this.cargandoVista = true;
+    this.http.get<any>(`${this.base}/usuarios/${u.id}/perfil-vista`).subscribe({
       next: (data) => {
         this.usuarioEnVista = data;
         this.mostrandoVista = true;
         this.cargandoVista  = false;
       },
-      error: () => { this.cargandoVista = false; }
+      error: (err) => { 
+        console.error('❌ Error al obtener perfil vista:', err);
+        this.cargandoVista  = false; 
+      }
     });
   }
  
@@ -130,14 +128,15 @@ cargarTodo() {
       ? `${this.base}/usuarios/${u.id}/desactivar`
       : `${this.base}/usuarios/${u.id}/activar`;
 
-    this.auth.getAccessTokenSilently().pipe(
-      switchMap(token => this.http.put(url, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'text'
-      }))
-    ).subscribe({
-      next: () => { u.activo = !u.activo; this.accionando = null; },
-      error: () => { this.accionando = null; }
+    this.http.put(url, {}, { responseType: 'text' }).subscribe({
+      next: () => { 
+        u.activo = !u.activo; 
+        this.accionando = null; 
+      },
+      error: (err) => { 
+        console.error('❌ Error en toggleUsuario:', err);
+        this.accionando = null; 
+      }
     });
   }
 
@@ -149,14 +148,15 @@ cargarTodo() {
       ? `${this.base}/empresas/${e.id}/desactivar`
       : `${this.base}/empresas/${e.id}/activar`;
 
-    this.auth.getAccessTokenSilently().pipe(
-      switchMap(token => this.http.put(url, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'text'
-      }))
-    ).subscribe({
-      next: () => { e.activa = !e.activa; this.accionando = null; },
-      error: () => { this.accionando = null; }
+    this.http.put(url, {}, { responseType: 'text' }).subscribe({
+      next: () => { 
+        e.activa = !e.activa; 
+        this.accionando = null; 
+      },
+      error: (err) => { 
+        console.error('❌ Error en toggleEmpresa:', err);
+        this.accionando = null; 
+      }
     });
   }
 
@@ -168,19 +168,17 @@ cargarTodo() {
       ? `${this.base}/suscripciones/${s.id}/suspender`
       : `${this.base}/suscripciones/${s.id}/activar`;
 
-    this.auth.getAccessTokenSilently().pipe(
-      switchMap(token => this.http.put(url, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'text'
-      }))
-    ).subscribe({
+    this.http.put(url, {}, { responseType: 'text' }).subscribe({
       next: () => {
         const eraActiva = s.estado === 'ACTIVA';
         s.estado     = eraActiva ? 'CANCELADA' : 'ACTIVA';
         s.estadoPago = eraActiva ? 'FALLIDO'   : 'PAGADO';
         this.accionando = null;
       },
-      error: () => { this.accionando = null; }
+      error: (err) => { 
+        console.error('❌ Error en toggleSuscripcion:', err);
+        this.accionando = null; 
+      }
     });
   }
 

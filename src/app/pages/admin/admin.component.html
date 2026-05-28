@@ -399,17 +399,17 @@
             <div class="alerta-nivel-bar" [style.background]="getNivelColor(a.nivel)"></div>
             <div class="alerta-body">
               <div class="alerta-top">
-                <span class="alerta-tipo">{{ a.tipoMetrica }}</span>
-                <span class="alerta-empresa">{{ a.empresa }}</span>
-                <span class="alerta-sensor">{{ a.sensor }}</span> 
+                <span class="alerta-tipo">{{ a?.tipoMetrica ?? 'Métrica' }}</span>
+                <span class="alerta-empresa">{{ a?.empresa ?? 'Hogar/Sistema' }}</span>
+                <span class="alerta-sensor">{{ a?.sensor ?? 'Dispositivo' }}</span> 
               </div>
-              <div class="alerta-msg">{{ a.mensaje }}</div>
+              <div class="alerta-msg">{{ a?.mensaje ?? 'Sin mensaje' }}</div>
             </div>
             <div class="alerta-meta">
-              <span class="nivel-tag" [style.color]="getNivelColor(a.nivel)" [style.border-color]="getNivelColor(a.nivel)">{{ a.nivel }}</span>
-              <span class="alerta-val">{{ a.valor | number:'1.1-1' }}</span>
-              <span class="alerta-fecha">{{ a.fecha | date:'dd/MM HH:mm' }}</span>
-              <span class="atendida-badge" [class.atendida]="a.atendida">
+              <span class="nivel-tag" [style.color]="getNivelColor(a?.nivel)" [style.border-color]="getNivelColor(a?.nivel)">{{ a?.nivel ?? 'INFO' }}</span>
+              <span class="alerta-val">{{ a?.valor !== null && a?.valor !== undefined ? (a.valor | number:'1.1-1') : '—' }}</span>
+              <span class="alerta-fecha">{{ a?.fecha ? (a.fecha | date:'dd/MM HH:mm') : '—' }}</span>
+              <span class="atendida-badge" [class.atendida]="a?.atendida">
                 {{ a.atendida ? '✓ Atendida' : 'Pendiente' }}
               </span>
             </div>
